@@ -1,0 +1,46 @@
+// Shared style patterns. Use from component styles with `@use 'mixins';`.
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 640px,
+  md: 900px
+);
+
+@mixin breakpoint-down($name) {
+  @media (max-width: map.get($breakpoints, $name)) {
+    @content;
+  }
+}
+
+/// Small uppercase label used for captions, table headers and eyebrows.
+@mixin caps-label($color: var(--app-color-text-muted)) {
+  color: $color;
+  font-size: var(--app-font-size-2xs);
+  font-weight: var(--app-font-weight-heavy);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+@mixin eyebrow {
+  @include caps-label(var(--app-color-accent));
+
+  margin: 0 0 var(--app-space-3);
+  font-size: var(--app-font-size-xs);
+  letter-spacing: 1.8px;
+}
+
+@mixin tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+@mixin card-surface($radius: var(--app-radius-lg)) {
+  border: 1px solid var(--app-color-border);
+  border-radius: $radius;
+  background: var(--app-color-surface);
+}
+
+@mixin muted-text($size: var(--app-font-size-md)) {
+  color: var(--app-color-text-muted);
+  font-size: $size;
+  line-height: var(--app-line-height-relaxed);
+}

@@ -1,0 +1,117 @@
+@use 'mixins';
+
+:host {
+  --shell-gutter: clamp(20px, 5vw, 72px);
+
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+
+  @include mixins.breakpoint-down(sm) {
+    --shell-gutter: var(--app-space-4);
+  }
+}
+
+.topbar {
+  display: flex;
+  height: 72px;
+  align-items: center;
+  padding: 0 var(--shell-gutter);
+  border-bottom: 1px solid var(--app-color-border);
+  background: var(--app-color-overlay);
+
+  @include mixins.breakpoint-down(sm) {
+    height: var(--app-space-16);
+  }
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--app-space-3);
+  font-size: var(--app-font-size-xl);
+  font-weight: var(--app-font-weight-bold);
+  letter-spacing: -.4px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: var(--app-space-8);
+  height: var(--app-space-8);
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-accent-contrast);
+  background: var(--app-color-accent);
+  font-weight: 900;
+}
+
+.brand-accent {
+  color: var(--app-color-accent);
+}
+
+.main-nav {
+  display: flex;
+  height: 100%;
+  gap: var(--app-space-2);
+  margin-left: clamp(32px, 7vw, 100px);
+
+  @include mixins.breakpoint-down(sm) {
+    gap: 0;
+    margin-left: auto;
+  }
+
+  a {
+    display: grid;
+    align-items: center;
+    padding: 0 var(--app-space-4);
+    border-bottom: 2px solid transparent;
+    color: var(--app-color-text-muted);
+    font-size: var(--app-font-size-base);
+
+    @include mixins.breakpoint-down(sm) {
+      padding: 0 var(--app-space-3);
+      font-size: var(--app-font-size-md);
+    }
+
+    &._active {
+      border-bottom-color: var(--app-color-accent);
+      color: var(--app-color-text);
+    }
+  }
+}
+
+.topbar-meta {
+  @include mixins.caps-label;
+
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  margin-left: auto;
+  font-size: var(--app-font-size-xs);
+  font-weight: var(--app-font-weight-bold);
+
+  @include mixins.breakpoint-down(sm) {
+    display: none;
+  }
+}
+
+.page-container {
+  flex: 1;
+  width: min(var(--app-content-max-width), calc(100% - var(--app-space-12)));
+  margin: 0 auto;
+  padding: var(--app-space-12) 0 var(--app-space-16);
+
+  @include mixins.breakpoint-down(sm) {
+    width: calc(100% - var(--app-space-8));
+    padding-top: var(--app-space-8);
+  }
+}
+
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--app-space-5) var(--shell-gutter);
+  border-top: 1px solid var(--app-color-border);
+  color: var(--app-color-text-subtle);
+  font-size: var(--app-font-size-sm);
+}

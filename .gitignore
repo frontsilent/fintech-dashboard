@@ -1,0 +1,32 @@
+# Dependencies
+/node_modules
+
+# Build output
+/dist
+/out-tsc
+/coverage
+/.angular
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Rust / WebAssembly build artifacts (generated)
+/wasm/**/target
+/wasm/pkg
+/src/app/core/workers/*.wasm
+
+# Environment files
+.env
+.env.*
+!.env.example

@@ -1,0 +1,46 @@
+@use 'mixins';
+
+:host {
+  --panel-padding: var(--app-space-6);
+
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-xl);
+  background: linear-gradient(145deg, rgba(23, 36, 58, .82), rgba(17, 28, 46, .9));
+
+  @include mixins.breakpoint-down(sm) {
+    --panel-padding: var(--app-space-5);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--app-space-4);
+  padding: var(--panel-padding);
+  border-bottom: 1px solid var(--app-color-border);
+}
+
+.eyebrow {
+  @include mixins.eyebrow;
+}
+
+h2 {
+  font-size: var(--app-font-size-xl);
+}
+
+.description {
+  @include mixins.muted-text;
+
+  margin: var(--app-space-2) 0 0;
+}
+
+.body {
+  padding: 0 var(--panel-padding) var(--panel-padding);
+}
+
+:host(._flush) .body {
+  padding: 0;
+}

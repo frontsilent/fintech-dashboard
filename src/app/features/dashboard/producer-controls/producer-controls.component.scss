@@ -1,0 +1,24 @@
+@use 'mixins';
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+
+  @include mixins.breakpoint-down(sm) {
+    justify-content: space-between;
+  }
+}
+
+.indicator {
+  display: flex;
+  min-height: var(--app-control-height);
+  align-items: center;
+  gap: var(--app-space-2);
+  padding: 0 var(--app-space-3);
+  border: 1px solid var(--app-color-border);
+  border-radius: var(--app-radius-md);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-md);
+  white-space: nowrap;
+}

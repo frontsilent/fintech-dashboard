@@ -1,0 +1,40 @@
+@use 'mixins';
+
+:host {
+  @include mixins.card-surface;
+
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: var(--app-space-5);
+
+  @include mixins.breakpoint-down(sm) {
+    padding: var(--app-space-4);
+  }
+}
+
+.label {
+  @include mixins.caps-label;
+}
+
+.value {
+  @include mixins.tabular-nums;
+
+  margin-top: var(--app-space-3);
+  font-size: var(--app-font-size-stat);
+  font-weight: var(--app-font-weight-semibold);
+  letter-spacing: -.8px;
+
+  small {
+    color: var(--app-color-text-muted);
+    font-size: var(--app-font-size-base);
+    font-weight: var(--app-font-weight-medium);
+    letter-spacing: 0;
+  }
+}
+
+.hint {
+  margin-top: var(--app-space-1);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-sm);
+}

@@ -1,0 +1,81 @@
+@use 'mixins';
+
+:host {
+  display: block;
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  @include mixins.tabular-nums;
+
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+th,
+td {
+  text-align: right;
+
+  &:first-child {
+    padding-left: var(--app-space-6);
+    text-align: left;
+  }
+}
+
+th {
+  @include mixins.caps-label;
+
+  padding: var(--app-space-3) var(--app-space-4);
+  background: rgba(7, 13, 23, .24);
+  letter-spacing: .8px;
+}
+
+td {
+  padding: var(--app-space-4);
+  border-top: 1px solid var(--app-color-divider);
+  font-size: var(--app-font-size-md);
+
+  &._emphasis {
+    font-weight: var(--app-font-weight-semibold);
+  }
+
+  &[data-sign='positive'] {
+    color: var(--app-color-accent);
+  }
+
+  &[data-sign='negative'] {
+    color: var(--app-color-danger);
+  }
+
+  &.empty {
+    padding: var(--app-space-8);
+    color: var(--app-color-text-muted);
+    text-align: center;
+  }
+}
+
+.symbol {
+  display: block;
+  font-weight: var(--app-font-weight-bold);
+  letter-spacing: .2px;
+}
+
+.symbol-type {
+  @include mixins.caps-label;
+
+  display: block;
+  margin-top: var(--app-space-1);
+  font-weight: var(--app-font-weight-medium);
+}
+
+.footnote {
+  margin: 0;
+  padding: var(--app-space-3) var(--app-space-6);
+  border-top: 1px solid var(--app-color-border);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-xs);
+}

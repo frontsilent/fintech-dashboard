@@ -1,0 +1,27 @@
+:host {
+  --status-dot-color: var(--app-color-neutral);
+  --status-dot-glow: transparent;
+
+  display: inline-block;
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--status-dot-color);
+  box-shadow: 0 0 12px var(--status-dot-glow);
+}
+
+:host(._success) {
+  --status-dot-color: var(--app-color-accent);
+  --status-dot-glow: var(--app-color-accent-glow);
+}
+
+:host(._warning) {
+  --status-dot-color: var(--app-color-warning);
+  --status-dot-glow: var(--app-color-warning-glow);
+}
+
+:host(._error) {
+  --status-dot-color: var(--app-color-danger);
+  --status-dot-glow: var(--app-color-danger-glow);
+}

@@ -1,0 +1,34 @@
+<div class="scroll">
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Instrument</th>
+                <th scope="col">Last price</th>
+                <th scope="col">Bid–ask spread</th>
+                <th scope="col">Trading volume</th>
+                <th scope="col">VWAP</th>
+                <th scope="col">Book imbalance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (metric of metrics(); track metric.instrument) {
+                <tr>
+                    <td>
+                        <span class="symbol">{{ metric.instrument }}</span>
+                        <span class="symbol-type">SIMULATED</span>
+                    </td>
+                    <td class="_emphasis">{{ metric.lastPriceCents | usdCents }}</td>
+                    <td>{{ metric.spreadCents | usdCents }}</td>
+                    <td class="_emphasis">{{ metric.tradingVolume | integer }}</td>
+                    <td>{{ metric.vwapCents | usdCents }}</td>
+                    <td [attr.data-sign]="metric.orderBookImbalance | numberSign">{{ metric.orderBookImbalance | signedRatio }}</td>
+                </tr>
+            } @empty {
+                <tr>
+                    <td class="empty" colspan="6">Waiting for producer initialization…</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="footnote">Prices are displayed in USD. Volume includes executed trades only; order-book quantities are excluded.</p>

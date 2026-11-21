@@ -1,0 +1,63 @@
+<app-page-header
+    eyebrow="Configuration"
+    heading="Producer settings"
+    description="Configure the market data simulation. Changes take effect only after you apply them." />
+
+<div class="layout">
+    <app-panel heading="Simulation configuration" description="Choose the number of instruments and the generation frequency.">
+        <span class="settings-icon" aria-hidden="true" panelAside>⚙</span>
+
+        <form [formGroup]="form" (ngSubmit)="applySettings()" novalidate>
+            @for (field of fields; track field.key) {
+                <app-form-field
+                    [controlId]="field.key"
+                    [label]="field.label"
+                    [hint]="limits[field.key].min + '–' + limits[field.key].max"
+                    [description]="field.description"
+                    [suffix]="field.unit"
+                    [error]="fieldError(field.key)">
+                    <input
+                        appInput
+                        type="number"
+                        inputmode="numeric"
+                        step="1"
+                        [id]="field.key"
+                        [min]="limits[field.key].min"
+                        [max]="limits[field.key].max"
+                        [formControlName]="field.key">
+                </app-form-field>
+            }
+
+            <div class="rate-preview">
+                <div>
+                    <span class="rate-label">Estimated update rate</span>
+                    <strong>{{ nominalRatePreview() | number: '1.0-2' }} <small>updates / sec</small></strong>
+                </div>
+                <span class="rate-note">Across all instruments</span>
+            </div>
+
+            @if (applyError(); as applyError) {
+                <app-alert class="feedback" appearance="error">{{ applyError }}</app-alert>
+            }
+            @if (appliedRunId(); as runId) {
+                <app-alert class="feedback" appearance="success">Settings applied. New run #{{ runId }} has been started.</app-alert>
+            }
+
+            <div class="actions">
+                <button appButton type="button" (click)="resetForm()">Reset changes</button>
+                <button appButton appearance="primary" type="submit">Apply settings <span aria-hidden="true">→</span></button>
+            </div>
+        </form>
+    </app-panel>
+
+    <aside class="sidebar">
+        <app-panel eyebrow="Active run" heading="Current configuration">
+            <app-detail-list [items]="activeRunDetails()" />
+        </app-panel>
+
+        <app-alert appearance="info" heading="About applying settings">
+            Editing these fields does not change the running simulation. Applying settings starts a new run,
+            clears all accumulated metrics and resumes generation with the new configuration.
+        </app-alert>
+    </aside>
+</div>

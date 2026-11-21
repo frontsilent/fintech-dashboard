@@ -1,0 +1,33 @@
+@use 'mixins';
+
+:host {
+  display: block;
+}
+
+dl {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+  padding: var(--app-space-3) 0;
+  border-bottom: 1px solid var(--app-color-divider);
+  color: var(--app-color-text-muted);
+  font-size: var(--app-font-size-sm);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+dd {
+  @include mixins.tabular-nums;
+
+  margin: 0;
+  color: var(--app-color-text);
+  font-weight: var(--app-font-weight-semibold);
+  text-align: right;
+}

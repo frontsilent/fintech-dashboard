@@ -1,0 +1,40 @@
+@use 'mixins';
+
+:host {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--app-space-6);
+  margin-bottom: var(--app-space-8);
+
+  @include mixins.breakpoint-down(sm) {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+.eyebrow {
+  @include mixins.eyebrow;
+}
+
+h1 {
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.15;
+  letter-spacing: -1.2px;
+}
+
+.description {
+  @include mixins.muted-text(var(--app-font-size-lg));
+
+  margin: var(--app-space-3) 0 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+
+  &:empty {
+    display: none;
+  }
+}
