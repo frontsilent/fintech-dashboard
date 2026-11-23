@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 
-import { createRandomSeed } from './create-random-seed';
 import { MarketDataWorkerClient } from './market-data-worker.client';
+import { createRandomSeed } from '../../shared/utils/create-random-seed';
 import { getErrorMessage } from '../../shared/utils/get-error-message';
 import { dispatchMessage, type MessageHandlers } from '../../shared/utils/message-dispatch';
 import { MARKET_DATA_WASM_PATH } from '../constants/market-data.constants';

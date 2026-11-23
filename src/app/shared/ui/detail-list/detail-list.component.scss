@@ -11,8 +11,8 @@ dl {
 .row {
   display: flex;
   justify-content: space-between;
-  gap: var(--app-space-3);
-  padding: var(--app-space-3) 0;
+  gap: 12px;
+  padding: 12px 0;
   border-bottom: 1px solid var(--app-color-divider);
   color: var(--app-color-text-muted);
   font-size: var(--app-font-size-sm);

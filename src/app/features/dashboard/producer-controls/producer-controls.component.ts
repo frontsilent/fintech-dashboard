@@ -1,7 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
-import { PRODUCER_CONTROL_BY_STATUS, type ProducerAction, type ProducerControl } from './producer-controls.constants';
-import { PRODUCER_STATUS_APPEARANCE, PRODUCER_STATUS_LABELS } from '../../../core/constants/producer-status.constants';
+import {
+  PRODUCER_CONTROL_BY_STATUS,
+  PRODUCER_STATUS_APPEARANCE,
+  type ProducerAction,
+  type ProducerControl
+} from './producer-controls.constants';
+import { PRODUCER_STATUS_LABELS } from '../../../core/constants/producer-status.constants';
 import { MarketDataProducerStore } from '../../../core/services/market-data-producer.store';
 import { ButtonDirective } from '../../../shared/ui/button/button.directive';
 import { StatusDotComponent } from '../../../shared/ui/status-dot/status-dot.component';

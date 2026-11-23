@@ -7,8 +7,8 @@
   min-height: var(--app-control-height);
   align-items: center;
   justify-content: center;
-  gap: var(--app-space-2);
-  padding: 0 var(--app-space-4);
+  gap: 8px;
+  padding: 0 16px;
   border: 1px solid var(--app-color-border);
   border-radius: var(--app-radius-md);
   color: var(--app-color-text);
@@ -44,7 +44,7 @@
   width: 100%;
   min-width: 0;
   height: 100%;
-  padding: 0 var(--app-space-3);
+  padding: 0 12px;
   border: 0;
   outline: 0;
   color: var(--app-color-text);

@@ -4,8 +4,8 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: var(--app-space-6);
-  margin-bottom: var(--app-space-8);
+  gap: 24px;
+  margin-bottom: 32px;
 
   @include mixins.breakpoint-down(sm) {
     align-items: stretch;
@@ -18,21 +18,21 @@
 }
 
 h1 {
-  font-size: clamp(28px, 4vw, 38px);
-  line-height: 1.15;
+  font-size: var(--app-font-size-page-title);
+  line-height: var(--app-line-height-tight);
   letter-spacing: -1.2px;
 }
 
 .description {
   @include mixins.muted-text(var(--app-font-size-lg));
 
-  margin: var(--app-space-3) 0 0;
+  margin: 12px 0 0;
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--app-space-3);
+  gap: 12px;
 
   &:empty {
     display: none;

@@ -51,25 +51,29 @@ The Jest suite also runs the compiled `public/wasm/market_data_generator.wasm`
 src/app/
   app.*                     Shell (top bar, navigation, footer) and bootstrap config
   core/                     App-wide business code, no UI
-    constants/              Defaults, settings limits, status labels/appearance maps
+    constants/              Defaults, settings limits, status labels, Wasm path
     models/                 Domain and Worker-protocol types
-    domain/                 Pure functions: metrics, validation, lifecycle, nominal rate (+ specs)
+    domain/                 Pure business rules: metrics, validation, lifecycle, nominal rate, symbols (+ specs)
     services/               MarketDataProducerStore (signals state) and MarketDataWorkerClient
     workers/                Worker entry, runtime (run lifecycle + scheduling), Wasm adapter, record decoder
   features/                 Routed pages; each feature owns its sub-components and constants
-    dashboard/              Producer controls, instruments table
+    dashboard/              Producer controls (+ status appearance/control maps), instruments table
     settings/               Settings form factory and field config
   shared/                   Generic, business-agnostic building blocks
     ui/                     page-header, panel, stat-card, alert, status-dot, form-field, detail-list,
                             button[appButton], input[appInput]
     pipes/                  usdCents, integer, signedRatio, numberSign
     validators/             integerRangeValidators + error messages
-    utils/                  number ranges, formatting, error messages, typed message dispatch
+    utils/                  number ranges, formatting, error messages, typed message dispatch, random seed
 src/styles/
-  _tokens.scss              Design tokens as CSS custom properties (colours, spacing, radii, type)
+  _palette.scss             Colour custom properties (`--app-color-*`)
+  _typography.scss          Font family, sizes, weights, line heights (`--app-font-*`, `--app-line-height-*`)
+  _sizes.scss               Radii and shared element sizes (`--app-radius-*`, `--app-control-height`, ...)
   _mixins.scss              Breakpoints and shared patterns; `@use 'mixins';` in component styles
   _base.scss, _controls.scss  Global reset/typography and directive-driven control styles
 ```
+
+Spacing has no variables: margins, paddings and gaps use explicit px values on a 4px scale (`4px`, `8px`, `12px`, `16px`, ...).
 
 ### Dependency rules
 

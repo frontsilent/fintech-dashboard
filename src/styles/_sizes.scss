@@ -1,0 +1,13 @@
+// Corner radii and shared element sizes. Spacing is written as explicit px values (4px scale) in place.
+
+:root {
+  // Radius
+  --app-radius-sm: 6px;
+  --app-radius-md: 8px;
+  --app-radius-lg: 10px;
+  --app-radius-xl: 12px;
+
+  // Sizes
+  --app-control-height: 40px;
+  --app-content-max-width: 1280px;
+}

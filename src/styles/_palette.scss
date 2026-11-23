@@ -1,25 +1,38 @@
-// Design tokens: the single source of colours, spacing, radius and typography.
+// Color palette as CSS custom properties. Included once from `styles.scss`;
+// component styles reference them directly via `var(--app-color-*)`.
 
 :root {
-  // Colors
+  // Backgrounds and surfaces
   --app-color-bg: #0b1220;
   --app-color-bg-glow: #1a2b43;
   --app-color-surface: #111c2e;
   --app-color-surface-raised: #17243a;
   --app-color-surface-sunken: rgba(7, 13, 23, .28);
+  --app-color-surface-muted: rgba(17, 28, 46, .65);
+  --app-color-surface-gradient-start: rgba(23, 36, 58, .82);
+  --app-color-surface-gradient-end: rgba(17, 28, 46, .9);
+  --app-color-table-header: rgba(7, 13, 23, .24);
   --app-color-overlay: rgba(11, 18, 32, .82);
+
+  // Borders
   --app-color-border: #26364d;
   --app-color-border-strong: #536b89;
   --app-color-divider: rgba(38, 54, 77, .65);
+
+  // Text
   --app-color-text: #e8eef7;
   --app-color-text-muted: #91a0b7;
   --app-color-text-subtle: #687990;
+
+  // Accent
   --app-color-accent: #54d6a0;
   --app-color-accent-hover: #6be2b0;
   --app-color-accent-contrast: #07150f;
   --app-color-accent-soft: rgba(84, 214, 160, .08);
   --app-color-accent-border: rgba(84, 214, 160, .25);
   --app-color-accent-glow: rgba(84, 214, 160, .55);
+
+  // Status
   --app-color-warning: #e8b45c;
   --app-color-warning-glow: rgba(232, 180, 92, .35);
   --app-color-danger: #f08d8d;
@@ -28,41 +41,4 @@
   --app-color-danger-border: rgba(240, 141, 141, .3);
   --app-color-danger-glow: rgba(233, 120, 120, .35);
   --app-color-neutral: #718096;
-
-  // Spacing (4px scale)
-  --app-space-1: 4px;
-  --app-space-2: 8px;
-  --app-space-3: 12px;
-  --app-space-4: 16px;
-  --app-space-5: 20px;
-  --app-space-6: 24px;
-  --app-space-8: 32px;
-  --app-space-12: 48px;
-  --app-space-16: 64px;
-
-  // Radius
-  --app-radius-sm: 6px;
-  --app-radius-md: 8px;
-  --app-radius-lg: 10px;
-  --app-radius-xl: 12px;
-
-  // Typography
-  --app-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --app-font-size-2xs: 9px;
-  --app-font-size-xs: 10px;
-  --app-font-size-sm: 11px;
-  --app-font-size-md: 12px;
-  --app-font-size-base: 13px;
-  --app-font-size-lg: 14px;
-  --app-font-size-xl: 17px;
-  --app-font-size-stat: 26px;
-  --app-font-weight-medium: 500;
-  --app-font-weight-semibold: 650;
-  --app-font-weight-bold: 700;
-  --app-font-weight-heavy: 800;
-  --app-line-height-relaxed: 1.6;
-
-  // Sizes
-  --app-control-height: 40px;
-  --app-content-max-width: 1280px;
 }

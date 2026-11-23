@@ -1,16 +1,16 @@
 @use 'mixins';
 
 :host {
-  --panel-padding: var(--app-space-6);
+  --panel-padding: 24px;
 
   display: block;
   overflow: hidden;
   border: 1px solid var(--app-color-border);
   border-radius: var(--app-radius-xl);
-  background: linear-gradient(145deg, rgba(23, 36, 58, .82), rgba(17, 28, 46, .9));
+  background: linear-gradient(145deg, var(--app-color-surface-gradient-start), var(--app-color-surface-gradient-end));
 
   @include mixins.breakpoint-down(sm) {
-    --panel-padding: var(--app-space-5);
+    --panel-padding: 20px;
   }
 }
 
@@ -18,7 +18,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--app-space-4);
+  gap: 16px;
   padding: var(--panel-padding);
   border-bottom: 1px solid var(--app-color-border);
 }
@@ -34,7 +34,7 @@ h2 {
 .description {
   @include mixins.muted-text;
 
-  margin: var(--app-space-2) 0 0;
+  margin: 8px 0 0;
 }
 
 .body {

@@ -8,7 +8,7 @@
   flex-direction: column;
 
   @include mixins.breakpoint-down(sm) {
-    --shell-gutter: var(--app-space-4);
+    --shell-gutter: 16px;
   }
 }
 
@@ -21,14 +21,14 @@
   background: var(--app-color-overlay);
 
   @include mixins.breakpoint-down(sm) {
-    height: var(--app-space-16);
+    height: 64px;
   }
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--app-space-3);
+  gap: 12px;
   font-size: var(--app-font-size-xl);
   font-weight: var(--app-font-weight-bold);
   letter-spacing: -.4px;
@@ -37,12 +37,12 @@
 .brand-mark {
   display: grid;
   place-items: center;
-  width: var(--app-space-8);
-  height: var(--app-space-8);
+  width: 32px;
+  height: 32px;
   border-radius: var(--app-radius-md);
   color: var(--app-color-accent-contrast);
   background: var(--app-color-accent);
-  font-weight: 900;
+  font-weight: var(--app-font-weight-black);
 }
 
 .brand-accent {
@@ -52,7 +52,7 @@
 .main-nav {
   display: flex;
   height: 100%;
-  gap: var(--app-space-2);
+  gap: 8px;
   margin-left: clamp(32px, 7vw, 100px);
 
   @include mixins.breakpoint-down(sm) {
@@ -63,13 +63,13 @@
   a {
     display: grid;
     align-items: center;
-    padding: 0 var(--app-space-4);
+    padding: 0 16px;
     border-bottom: 2px solid transparent;
     color: var(--app-color-text-muted);
     font-size: var(--app-font-size-base);
 
     @include mixins.breakpoint-down(sm) {
-      padding: 0 var(--app-space-3);
+      padding: 0 12px;
       font-size: var(--app-font-size-md);
     }
 
@@ -85,7 +85,7 @@
 
   display: flex;
   align-items: center;
-  gap: var(--app-space-2);
+  gap: 8px;
   margin-left: auto;
   font-size: var(--app-font-size-xs);
   font-weight: var(--app-font-weight-bold);
@@ -97,20 +97,20 @@
 
 .page-container {
   flex: 1;
-  width: min(var(--app-content-max-width), calc(100% - var(--app-space-12)));
+  width: min(var(--app-content-max-width), calc(100% - 48px));
   margin: 0 auto;
-  padding: var(--app-space-12) 0 var(--app-space-16);
+  padding: 48px 0 64px;
 
   @include mixins.breakpoint-down(sm) {
-    width: calc(100% - var(--app-space-8));
-    padding-top: var(--app-space-8);
+    width: calc(100% - 32px);
+    padding-top: 32px;
   }
 }
 
 .app-footer {
   display: flex;
   justify-content: space-between;
-  padding: var(--app-space-5) var(--shell-gutter);
+  padding: 20px var(--shell-gutter);
   border-top: 1px solid var(--app-color-border);
   color: var(--app-color-text-subtle);
   font-size: var(--app-font-size-sm);

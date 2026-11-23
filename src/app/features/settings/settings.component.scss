@@ -8,7 +8,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(260px, .8fr);
   align-items: start;
-  gap: var(--app-space-5);
+  gap: 20px;
 
   @include mixins.breakpoint-down(md) {
     grid-template-columns: 1fr;
@@ -17,7 +17,7 @@
 
 .sidebar {
   display: grid;
-  gap: var(--app-space-4);
+  gap: 16px;
 
   @include mixins.breakpoint-down(md) {
     grid-template-columns: 1fr 1fr;
@@ -44,9 +44,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--app-space-4);
-  margin-top: var(--app-space-5);
-  padding: var(--app-space-4);
+  gap: 16px;
+  margin-top: 20px;
+  padding: 16px;
   border: 1px solid var(--app-color-accent-border);
   border-radius: var(--app-radius-md);
   background: var(--app-color-accent-soft);
@@ -60,9 +60,9 @@
     @include mixins.tabular-nums;
 
     display: block;
-    margin-top: var(--app-space-2);
+    margin-top: 8px;
     color: var(--app-color-accent);
-    font-size: 20px;
+    font-size: var(--app-font-size-2xl);
   }
 
   small {
@@ -81,14 +81,14 @@
 }
 
 .feedback {
-  margin-top: var(--app-space-4);
+  margin-top: 16px;
 }
 
 .actions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--app-space-3);
-  margin-top: var(--app-space-6);
+  gap: 12px;
+  margin-top: 24px;
 
   @include mixins.breakpoint-down(sm) {
     flex-direction: column-reverse;

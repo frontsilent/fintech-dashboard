@@ -1,7 +1,7 @@
 const seedWords = 2;
 const bytesPerWord = Uint32Array.BYTES_PER_ELEMENT;
 
-/** Creates a cryptographically random unsigned 64-bit seed for the Wasm generator. */
+/** Creates a cryptographically random unsigned 64-bit seed (e.g. for a deterministic PRNG). */
 export function createRandomSeed(): bigint {
   const words = crypto.getRandomValues(new Uint32Array(seedWords));
   const view = new DataView(new ArrayBuffer(seedWords * bytesPerWord));

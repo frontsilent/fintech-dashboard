@@ -5,28 +5,28 @@
 }
 
 .error {
-  margin-bottom: var(--app-space-5);
+  margin-bottom: 20px;
 }
 
 .overview {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--app-space-4);
-  margin-bottom: var(--app-space-6);
+  gap: 16px;
+  margin-bottom: 24px;
 
   @include mixins.breakpoint-down(md) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @include mixins.breakpoint-down(sm) {
-    gap: var(--app-space-2);
+    gap: 8px;
   }
 }
 
 .run-id {
   @include mixins.caps-label;
 
-  padding: var(--app-space-2);
+  padding: 8px;
   border: 1px solid var(--app-color-border);
   border-radius: var(--app-radius-sm);
   font-size: var(--app-font-size-xs);

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import type { StatusAppearance } from './status-appearance.type';
+export type StatusAppearance = 'success' | 'warning' | 'error' | 'neutral';
 
 @Component({
   selector: 'app-status-dot',
