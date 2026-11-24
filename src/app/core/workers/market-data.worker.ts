@@ -5,8 +5,8 @@ import { WasmMarketDataGenerator } from './wasm-market-data-generator';
 import type { MainToWorkerMessage, WorkerToMainMessage } from '../models/worker-message.model';
 
 const runtime = new MarketDataWorkerRuntime({
-  post: (message: WorkerToMainMessage) => postMessage(message),
-  loadGenerator: async (wasmUrl) => WasmMarketDataGenerator.load(wasmUrl)
+  postToMainThread: (message: WorkerToMainMessage) => postMessage(message),
+  loadGenerator: async (wasmUrl) => WasmMarketDataGenerator.loadFromUrl(wasmUrl)
 });
 
-addEventListener('message', (event: MessageEvent<MainToWorkerMessage>) => runtime.handle(event.data));
+addEventListener('message', (event: MessageEvent<MainToWorkerMessage>) => runtime.handleMainThreadMessage(event.data));

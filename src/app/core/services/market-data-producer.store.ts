@@ -37,11 +37,11 @@ export class MarketDataProducerStore {
   /** Exact accumulators are kept outside signals; only derived display values are published. */
   private accumulators: MarketMetricsState = createMarketMetricsState();
   private readonly messageHandlers: MessageHandlers<WorkerToMainMessageMap> = {
-    ready: (message) => this.updateLifecycle(message),
-    paused: (message) => this.updateLifecycle(message),
-    resumed: (message) => this.updateLifecycle(message),
-    batch: ({ updates }) => this.applyBatch(updates),
-    error: ({ message }) => this.fail(message)
+    ready: (message) => this.applyLifecycleMessage(message),
+    paused: (message) => this.applyLifecycleMessage(message),
+    resumed: (message) => this.applyLifecycleMessage(message),
+    batch: ({ updates }) => this.applyMarketUpdateBatch(updates),
+    error: ({ message }) => this.failWithError(message)
   };
 
   readonly status = computed(() => this.snapshot().status);
@@ -52,27 +52,27 @@ export class MarketDataProducerStore {
   readonly nominalUpdatesPerSecond = computed(() => calculateNominalUpdatesPerSecond(this.settings()));
 
   constructor() {
-    this.workerClient.connect({
-      message: (message) => this.handleWorkerMessage(message),
-      error: (message) => this.fail(message)
+    this.workerClient.registerListeners({
+      message: (message) => this.handleCurrentRunWorkerMessage(message),
+      error: (message) => this.failWithError(message)
     });
   }
 
   /** Starts the default simulation; called once at application startup. */
-  start(): void {
-    this.applySettings(DEFAULT_PRODUCER_SETTINGS);
+  startDefaultSimulation(): void {
+    this.restartWithSettings(DEFAULT_PRODUCER_SETTINGS);
   }
 
   /** Starts a fresh run with the given settings, clearing previous values, regardless of the current status. */
-  applySettings(settings: ProducerSettings): number {
+  restartWithSettings(settings: ProducerSettings): number {
     assertValidProducerSettings(settings);
 
     const run = startProducerRun(this.snapshot(), { ...settings });
 
     this.snapshot.set(run);
-    this.publishMetrics(createMarketMetricsState(createInstrumentSymbols(settings.instrumentCount)));
+    this.replaceMetricsState(createMarketMetricsState(createInstrumentSymbols(settings.instrumentCount)));
     this.errorState.set(null);
-    this.workerClient.post({
+    this.workerClient.postToWorker({
       type: 'init',
       runId: run.runId,
       settings: run.settings,
@@ -83,50 +83,50 @@ export class MarketDataProducerStore {
     return run.runId;
   }
 
-  pause(): void {
+  pauseProducer(): void {
     if (!canPauseProducer(this.snapshot())) {
       return;
     }
 
-    this.workerClient.post({ type: 'pause', runId: this.runId() });
+    this.workerClient.postToWorker({ type: 'pause', runId: this.runId() });
     // Pausing takes effect immediately in the UI; the Worker acknowledgement is idempotent.
     this.snapshot.update((current) => setProducerStatus(current, 'paused'));
   }
 
-  resume(): void {
+  resumeProducer(): void {
     if (!canResumeProducer(this.snapshot())) {
       return;
     }
 
     // Keep the paused state until the Worker acknowledges the resume command.
-    this.workerClient.post({ type: 'resume', runId: this.runId() });
+    this.workerClient.postToWorker({ type: 'resume', runId: this.runId() });
   }
 
-  private handleWorkerMessage(message: WorkerToMainMessage): void {
+  private handleCurrentRunWorkerMessage(message: WorkerToMainMessage): void {
     if (isCurrentRunMessage(message, this.runId())) {
       dispatchMessage(this.messageHandlers, message.type, message);
     }
   }
 
-  private applyBatch(updates: WorkerToMainMessageMap['batch']['updates']): void {
+  private applyMarketUpdateBatch(updates: WorkerToMainMessageMap['batch']['updates']): void {
     try {
-      this.publishMetrics(applyMarketUpdates(this.accumulators, updates));
+      this.replaceMetricsState(applyMarketUpdates(this.accumulators, updates));
     } catch (error: unknown) {
-      this.workerClient.post({ type: 'dispose', runId: this.runId() });
-      this.fail(getErrorMessage(error, 'Invalid market data received.'));
+      this.workerClient.postToWorker({ type: 'dispose', runId: this.runId() });
+      this.failWithError(getErrorMessage(error, 'Invalid market data received.'));
     }
   }
 
-  private fail(message: string): void {
+  private failWithError(message: string): void {
     this.errorState.set(message);
     this.snapshot.update((current) => setProducerStatus(current, 'error'));
   }
 
-  private updateLifecycle(message: WorkerToMainMessage): void {
+  private applyLifecycleMessage(message: WorkerToMainMessage): void {
     this.snapshot.update((current) => reduceProducerMessage(current, message));
   }
 
-  private publishMetrics(state: MarketMetricsState): void {
+  private replaceMetricsState(state: MarketMetricsState): void {
     this.accumulators = state;
     this.metricsState.set(selectInstrumentMetrics(state));
   }

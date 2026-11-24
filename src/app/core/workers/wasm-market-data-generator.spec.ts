@@ -11,15 +11,15 @@ const batchSize = 250;
 const invalidInstrumentCount = 51;
 
 const createGenerator = async (): Promise<WasmMarketDataGenerator> =>
-  WasmMarketDataGenerator.instantiate(readFileSync(wasmPath));
+  WasmMarketDataGenerator.instantiateFromBytes(readFileSync(wasmPath));
 
 describe('WasmMarketDataGenerator (compiled module)', () => {
   it('returns batches of the requested size with valid updates for configured instruments', async () => {
     const generator = await createGenerator();
 
-    generator.initialize(seed, instrumentCount);
+    generator.initializeRun(seed, instrumentCount);
 
-    const updates = generator.generateBatch(batchSize);
+    const updates = generator.generateUpdateBatch(batchSize);
     const instruments = new Set(updates.map((update) => update.instrument));
 
     expect(updates).toHaveLength(batchSize);
@@ -31,22 +31,22 @@ describe('WasmMarketDataGenerator (compiled module)', () => {
     const first = await createGenerator();
     const second = await createGenerator();
 
-    first.initialize(seed, instrumentCount);
-    second.initialize(seed, instrumentCount);
+    first.initializeRun(seed, instrumentCount);
+    second.initializeRun(seed, instrumentCount);
 
-    expect(first.generateBatch(batchSize)).toEqual(second.generateBatch(batchSize));
+    expect(first.generateUpdateBatch(batchSize)).toEqual(second.generateUpdateBatch(batchSize));
   });
 
   it('rejects an unsupported instrument count', async () => {
     const generator = await createGenerator();
 
-    expect(() => generator.initialize(seed, invalidInstrumentCount)).toThrow('initialization failed');
+    expect(() => generator.initializeRun(seed, invalidInstrumentCount)).toThrow('initialization failed');
   });
 
   it('rejects modules without the generator ABI', async () => {
     // Smallest valid module: the `\0asm` magic followed by binary format version 1.
     const emptyModule = Uint8Array.from([...new TextEncoder().encode('\0asm'), 1, 0, 0, 0]);
 
-    await expect(WasmMarketDataGenerator.instantiate(emptyModule)).rejects.toThrow('expected generator ABI');
+    await expect(WasmMarketDataGenerator.instantiateFromBytes(emptyModule)).rejects.toThrow('expected generator ABI');
   });
 });

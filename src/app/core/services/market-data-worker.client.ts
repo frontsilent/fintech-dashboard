@@ -16,24 +16,24 @@ export class MarketDataWorkerClient {
   private listeners: MarketDataWorkerListeners | null = null;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.terminate());
+    inject(DestroyRef).onDestroy(() => this.terminateWorker());
   }
 
   /** Registers the consumer of Worker events. The Worker itself is created lazily on the first post. */
-  connect(listeners: MarketDataWorkerListeners): void {
+  registerListeners(listeners: MarketDataWorkerListeners): void {
     this.listeners = listeners;
   }
 
-  post(message: MainToWorkerMessage): void {
-    this.getWorker().postMessage(message);
+  postToWorker(message: MainToWorkerMessage): void {
+    this.getOrCreateWorker().postMessage(message);
   }
 
-  terminate(): void {
+  terminateWorker(): void {
     this.worker?.terminate();
     this.worker = null;
   }
 
-  private getWorker(): Worker {
+  private getOrCreateWorker(): Worker {
     if (this.worker) {
       return this.worker;
     }

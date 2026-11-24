@@ -10,7 +10,7 @@ import type {
 } from '../models/worker-message.model';
 
 export type MarketDataWorkerRuntimeDependencies = {
-  readonly post: (message: WorkerToMainMessage) => void;
+  readonly postToMainThread: (message: WorkerToMainMessage) => void;
   readonly loadGenerator: MarketDataGeneratorLoader;
 }
 
@@ -32,29 +32,29 @@ export class MarketDataWorkerRuntime {
   private run: RunSession | null = null;
   private readonly dependencies: MarketDataWorkerRuntimeDependencies;
   private readonly handlers: MessageHandlers<MainToWorkerMessageMap> = {
-    init: async (message) => this.init(message),
-    pause: ({ runId }) => this.withActiveRun(runId, (run) => this.pause(run)),
-    resume: ({ runId }) => this.withActiveRun(runId, (run) => this.resume(run)),
-    dispose: ({ runId }) => this.withActiveRun(runId, () => this.dispose())
+    init: async (message) => this.startRun(message),
+    pause: ({ runId }) => this.runIfActive(runId, (run) => this.pauseRun(run)),
+    resume: ({ runId }) => this.runIfActive(runId, (run) => this.resumeRun(run)),
+    dispose: ({ runId }) => this.runIfActive(runId, () => this.disposeActiveRun())
   };
 
   constructor(dependencies: MarketDataWorkerRuntimeDependencies) {
     this.dependencies = dependencies;
   }
 
-  handle(message: MainToWorkerMessage): void {
+  handleMainThreadMessage(message: MainToWorkerMessage): void {
     dispatchMessage(this.handlers, message.type, message);
   }
 
-  private async init({ runId, settings, seed, wasmUrl }: MainToWorkerMessageMap['init']): Promise<void> {
-    this.dispose();
+  private async startRun({ runId, settings, seed, wasmUrl }: MainToWorkerMessageMap['init']): Promise<void> {
+    this.disposeActiveRun();
 
     const run: RunSession = { runId, settings, generator: null, isPaused: false, timer: null };
 
     this.run = run;
 
     if (!isValidProducerSettings(settings)) {
-      this.fail(run, 'Worker received invalid producer settings.');
+      this.failRun(run, 'Worker received invalid producer settings.');
 
       return;
     }
@@ -62,36 +62,36 @@ export class MarketDataWorkerRuntime {
     try {
       const generator = await this.dependencies.loadGenerator(wasmUrl);
 
-      if (!this.isActive(run)) {
+      if (!this.isActiveRun(run)) {
         return;
       }
 
-      generator.initialize(seed, settings.instrumentCount);
+      generator.initializeRun(seed, settings.instrumentCount);
       run.generator = generator;
-      this.post({ type: 'ready', runId });
+      this.postToMainThread({ type: 'ready', runId });
 
       if (run.isPaused) {
-        this.post({ type: 'paused', runId });
+        this.postToMainThread({ type: 'paused', runId });
       } else {
         this.scheduleNextBatch(run);
       }
     } catch (error: unknown) {
-      if (this.isActive(run)) {
-        this.fail(run, getErrorMessage(error, 'Unable to initialize WebAssembly generator.'));
+      if (this.isActiveRun(run)) {
+        this.failRun(run, getErrorMessage(error, 'Unable to initialize WebAssembly generator.'));
       }
     }
   }
 
-  private pause(run: RunSession): void {
+  private pauseRun(run: RunSession): void {
     run.isPaused = true;
     this.clearScheduledBatch(run);
 
     if (run.generator) {
-      this.post({ type: 'paused', runId: run.runId });
+      this.postToMainThread({ type: 'paused', runId: run.runId });
     }
   }
 
-  private resume(run: RunSession): void {
+  private resumeRun(run: RunSession): void {
     if (!run.isPaused) {
       return;
     }
@@ -99,12 +99,12 @@ export class MarketDataWorkerRuntime {
     run.isPaused = false;
 
     if (run.generator) {
-      this.post({ type: 'resumed', runId: run.runId });
+      this.postToMainThread({ type: 'resumed', runId: run.runId });
       this.scheduleNextBatch(run);
     }
   }
 
-  private dispose(): void {
+  private disposeActiveRun(): void {
     if (this.run) {
       this.clearScheduledBatch(this.run);
       this.run = null;
@@ -112,28 +112,28 @@ export class MarketDataWorkerRuntime {
   }
 
   private scheduleNextBatch(run: RunSession): void {
-    if (!this.canGenerate(run)) {
+    if (!this.canGenerateBatch(run)) {
       return;
     }
 
     run.timer = setTimeout(() => {
       run.timer = null;
-      this.publishBatch(run);
+      this.generateAndPostBatch(run);
     }, run.settings.batchIntervalMs);
   }
 
   /** The next batch is scheduled only after the current one has been generated and posted. */
-  private publishBatch(run: RunSession): void {
-    if (!this.canGenerate(run) || !run.generator) {
+  private generateAndPostBatch(run: RunSession): void {
+    if (!this.canGenerateBatch(run) || !run.generator) {
       return;
     }
 
     try {
-      const updates = run.generator.generateBatch(run.settings.updatesPerBatch);
+      const updates = run.generator.generateUpdateBatch(run.settings.updatesPerBatch);
 
-      this.post({ type: 'batch', runId: run.runId, updates });
+      this.postToMainThread({ type: 'batch', runId: run.runId, updates });
     } catch (error: unknown) {
-      this.fail(run, getErrorMessage(error, 'Unknown WebAssembly generation error.'));
+      this.failRun(run, getErrorMessage(error, 'Unknown WebAssembly generation error.'));
 
       return;
     }
@@ -141,10 +141,10 @@ export class MarketDataWorkerRuntime {
     this.scheduleNextBatch(run);
   }
 
-  private fail(run: RunSession, message: string): void {
+  private failRun(run: RunSession, message: string): void {
     this.clearScheduledBatch(run);
     run.isPaused = true;
-    this.post({ type: 'error', runId: run.runId, message });
+    this.postToMainThread({ type: 'error', runId: run.runId, message });
   }
 
   private clearScheduledBatch(run: RunSession): void {
@@ -154,21 +154,21 @@ export class MarketDataWorkerRuntime {
     }
   }
 
-  private withActiveRun(runId: number, action: (run: RunSession) => void): void {
+  private runIfActive(runId: number, action: (run: RunSession) => void): void {
     if (this.run?.runId === runId) {
       action(this.run);
     }
   }
 
-  private canGenerate(run: RunSession): boolean {
-    return this.isActive(run) && run.generator !== null && !run.isPaused;
+  private canGenerateBatch(run: RunSession): boolean {
+    return this.isActiveRun(run) && run.generator !== null && !run.isPaused;
   }
 
-  private isActive(run: RunSession): boolean {
+  private isActiveRun(run: RunSession): boolean {
     return this.run === run;
   }
 
-  private post(message: WorkerToMainMessage): void {
-    this.dependencies.post(message);
+  private postToMainThread(message: WorkerToMainMessage): void {
+    this.dependencies.postToMainThread(message);
   }
 }

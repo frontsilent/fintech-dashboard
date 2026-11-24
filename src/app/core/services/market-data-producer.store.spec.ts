@@ -43,7 +43,7 @@ function setup(): { store: MarketDataProducerStore; worker: FakeWorker } {
 
   const store = TestBed.inject(MarketDataProducerStore);
 
-  store.start();
+  store.startDefaultSimulation();
 
   return { store, worker };
 }
@@ -76,7 +76,7 @@ describe('MarketDataProducerStore', () => {
     worker.emit({ type: 'ready', runId: 1 });
     worker.emit({ type: 'batch', runId: 1, updates: [update] });
 
-    const runId = store.applySettings(changedSettings);
+    const runId = store.restartWithSettings(changedSettings);
 
     worker.emit({ type: 'batch', runId: 1, updates: [update] });
     worker.emit({ type: 'paused', runId: 1 });
@@ -92,8 +92,8 @@ describe('MarketDataProducerStore', () => {
     const { store, worker } = setup();
 
     worker.emit({ type: 'ready', runId: 1 });
-    store.pause();
-    store.applySettings(changedSettings);
+    store.pauseProducer();
+    store.restartWithSettings(changedSettings);
     worker.emit({ type: 'ready', runId: 2 });
 
     expect(store.status()).toBe('running');
@@ -104,12 +104,12 @@ describe('MarketDataProducerStore', () => {
 
     worker.emit({ type: 'ready', runId: 1 });
     worker.emit({ type: 'batch', runId: 1, updates: [update] });
-    store.pause();
+    store.pauseProducer();
 
     expect(worker.lastCommand()).toEqual({ type: 'pause', runId: 1 });
     expect(store.status()).toBe('paused');
 
-    store.resume();
+    store.resumeProducer();
 
     expect(worker.lastCommand()).toEqual({ type: 'resume', runId: 1 });
     expect(store.status()).toBe('paused');
@@ -124,9 +124,9 @@ describe('MarketDataProducerStore', () => {
     const { store, worker } = setup();
     const commandsAfterStart = worker.postMessage.mock.calls.length;
 
-    store.resume();
+    store.resumeProducer();
     worker.emit({ type: 'error', runId: 1, message: 'Boom' });
-    store.pause();
+    store.pauseProducer();
 
     expect(worker.postMessage).toHaveBeenCalledTimes(commandsAfterStart);
   });
@@ -158,7 +158,7 @@ describe('MarketDataProducerStore', () => {
   it('rejects invalid settings without starting a run', () => {
     const { store } = setup();
 
-    expect(() => store.applySettings({ ...DEFAULT_PRODUCER_SETTINGS, batchIntervalMs: 0 })).toThrow(RangeError);
+    expect(() => store.restartWithSettings({ ...DEFAULT_PRODUCER_SETTINGS, batchIntervalMs: 0 })).toThrow(RangeError);
     expect(store.runId()).toBe(1);
   });
 

@@ -37,7 +37,7 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
     this.exports = exports;
   }
 
-  static async instantiate(bytes: BufferSource): Promise<WasmMarketDataGenerator> {
+  static async instantiateFromBytes(bytes: BufferSource): Promise<WasmMarketDataGenerator> {
     const { instance } = await WebAssembly.instantiate(bytes, {});
 
     if (!hasGeneratorAbi(instance.exports)) {
@@ -47,23 +47,23 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
     return new WasmMarketDataGenerator(instance.exports);
   }
 
-  static async load(url: string): Promise<WasmMarketDataGenerator> {
+  static async loadFromUrl(url: string): Promise<WasmMarketDataGenerator> {
     const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(`Unable to load WebAssembly module (${response.status} ${response.statusText}).`);
     }
 
-    return WasmMarketDataGenerator.instantiate(await response.arrayBuffer());
+    return WasmMarketDataGenerator.instantiateFromBytes(await response.arrayBuffer());
   }
 
-  initialize(seed: bigint, instrumentCount: number): void {
+  initializeRun(seed: bigint, instrumentCount: number): void {
     if (this.exports.init(seed, instrumentCount) !== instrumentCount) {
       throw new Error('WebAssembly generator initialization failed.');
     }
   }
 
-  generateBatch(count: number): readonly MarketUpdate[] {
+  generateUpdateBatch(count: number): readonly MarketUpdate[] {
     const byteLength = count * MARKET_UPDATE_RECORD_BYTES;
     const pointer = this.exports.alloc_buffer(byteLength);
 

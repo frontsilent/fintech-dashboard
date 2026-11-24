@@ -97,7 +97,7 @@ export class SettingsComponent {
     }
 
     try {
-      this.appliedRunId.set(this.producer.applySettings(this.form.getRawValue()));
+      this.appliedRunId.set(this.producer.restartWithSettings(this.form.getRawValue()));
       this.form.markAsPristine();
       this.submitted.set(false);
     } catch (error: unknown) {

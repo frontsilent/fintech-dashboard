@@ -34,11 +34,11 @@ const initMessage = (runId: number): MainToWorkerMessageMap['init'] => ({
 function setup(): { runtime: MarketDataWorkerRuntime; posted: WorkerToMainMessage[]; generator: jest.Mocked<MarketDataGenerator> } {
   const posted: WorkerToMainMessage[] = [];
   const generator: jest.Mocked<MarketDataGenerator> = {
-    initialize: jest.fn(),
-    generateBatch: jest.fn((count: number) => Array.from({ length: count }, () => update))
+    initializeRun: jest.fn(),
+    generateUpdateBatch: jest.fn((count: number) => Array.from({ length: count }, () => update))
   };
   const runtime = new MarketDataWorkerRuntime({
-    post: (message) => posted.push(message),
+    postToMainThread: (message) => posted.push(message),
     loadGenerator: async () => Promise.resolve(generator)
   });
 
@@ -56,10 +56,10 @@ describe('MarketDataWorkerRuntime', () => {
   it('initializes the generator and publishes batches of the requested size on every interval', async () => {
     const { runtime, posted, generator } = setup();
 
-    runtime.handle(initMessage(run.first));
+    runtime.handleMainThreadMessage(initMessage(run.first));
     await jest.advanceTimersByTimeAsync(elapsed.twoBatches);
 
-    expect(generator.initialize).toHaveBeenCalledWith(seed, settings.instrumentCount);
+    expect(generator.initializeRun).toHaveBeenCalledWith(seed, settings.instrumentCount);
     expect(typesOf(posted)).toEqual(['ready', 'batch', 'batch']);
     expect(posted[1]).toEqual({ type: 'batch', runId: run.first, updates: [update, update] });
   });
@@ -67,11 +67,11 @@ describe('MarketDataWorkerRuntime', () => {
   it('stops generating while paused and continues after resume', async () => {
     const { runtime, posted } = setup();
 
-    runtime.handle(initMessage(run.first));
+    runtime.handleMainThreadMessage(initMessage(run.first));
     await jest.advanceTimersByTimeAsync(elapsed.oneBatch);
-    runtime.handle({ type: 'pause', runId: run.first });
+    runtime.handleMainThreadMessage({ type: 'pause', runId: run.first });
     await jest.advanceTimersByTimeAsync(elapsed.idle);
-    runtime.handle({ type: 'resume', runId: run.first });
+    runtime.handleMainThreadMessage({ type: 'resume', runId: run.first });
     await jest.advanceTimersByTimeAsync(elapsed.oneBatch);
 
     expect(typesOf(posted)).toEqual(['ready', 'batch', 'paused', 'resumed', 'batch']);
@@ -80,8 +80,8 @@ describe('MarketDataWorkerRuntime', () => {
   it('reports a pause requested during initialization once the generator is ready', async () => {
     const { runtime, posted } = setup();
 
-    runtime.handle(initMessage(run.first));
-    runtime.handle({ type: 'pause', runId: run.first });
+    runtime.handleMainThreadMessage(initMessage(run.first));
+    runtime.handleMainThreadMessage({ type: 'pause', runId: run.first });
     await jest.advanceTimersByTimeAsync(elapsed.oneBatch);
 
     expect(typesOf(posted)).toEqual(['ready', 'paused']);
@@ -90,10 +90,10 @@ describe('MarketDataWorkerRuntime', () => {
   it('ignores commands for a previous run and stops the old run on re-initialization', async () => {
     const { runtime, posted } = setup();
 
-    runtime.handle(initMessage(run.first));
+    runtime.handleMainThreadMessage(initMessage(run.first));
     await jest.advanceTimersByTimeAsync(0);
-    runtime.handle(initMessage(run.second));
-    runtime.handle({ type: 'pause', runId: run.first });
+    runtime.handleMainThreadMessage(initMessage(run.second));
+    runtime.handleMainThreadMessage({ type: 'pause', runId: run.first });
     await jest.advanceTimersByTimeAsync(elapsed.oneBatch);
 
     expect(typesOf(posted, run.first)).toEqual(['ready']);
@@ -103,9 +103,9 @@ describe('MarketDataWorkerRuntime', () => {
   it('stops all work after dispose', async () => {
     const { runtime, posted } = setup();
 
-    runtime.handle(initMessage(run.first));
+    runtime.handleMainThreadMessage(initMessage(run.first));
     await jest.advanceTimersByTimeAsync(0);
-    runtime.handle({ type: 'dispose', runId: run.first });
+    runtime.handleMainThreadMessage({ type: 'dispose', runId: run.first });
     await jest.advanceTimersByTimeAsync(elapsed.idle);
 
     expect(typesOf(posted)).toEqual(['ready']);
@@ -114,19 +114,19 @@ describe('MarketDataWorkerRuntime', () => {
   it('reports invalid settings without loading the generator', () => {
     const { runtime, posted, generator } = setup();
 
-    runtime.handle({ ...initMessage(run.first), settings: { ...settings, instrumentCount: 0 } });
+    runtime.handleMainThreadMessage({ ...initMessage(run.first), settings: { ...settings, instrumentCount: 0 } });
 
     expect(posted).toEqual([{ type: 'error', runId: run.first, message: 'Worker received invalid producer settings.' }]);
-    expect(generator.initialize).not.toHaveBeenCalled();
+    expect(generator.initializeRun).not.toHaveBeenCalled();
   });
 
   it('reports generation failures and stops the run', async () => {
     const { runtime, posted, generator } = setup();
 
-    generator.generateBatch.mockImplementation(() => {
+    generator.generateUpdateBatch.mockImplementation(() => {
       throw new Error('Out of memory');
     });
-    runtime.handle(initMessage(run.first));
+    runtime.handleMainThreadMessage(initMessage(run.first));
     await jest.advanceTimersByTimeAsync(elapsed.idle);
 
     expect(posted).toEqual([
@@ -138,11 +138,11 @@ describe('MarketDataWorkerRuntime', () => {
   it('reports generator loading failures', async () => {
     const posted: WorkerToMainMessage[] = [];
     const runtime = new MarketDataWorkerRuntime({
-      post: (message) => posted.push(message),
+      postToMainThread: (message) => posted.push(message),
       loadGenerator: async () => Promise.reject(new Error('404 Not Found'))
     });
 
-    runtime.handle(initMessage(run.first));
+    runtime.handleMainThreadMessage(initMessage(run.first));
     await jest.advanceTimersByTimeAsync(0);
 
     expect(posted).toEqual([{ type: 'error', runId: run.first, message: '404 Not Found' }]);

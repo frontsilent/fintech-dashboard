@@ -32,8 +32,8 @@ import { StatusDotComponent } from '../../../shared/ui/status-dot/status-dot.com
 export class ProducerControlsComponent {
   private readonly producer = inject(MarketDataProducerStore);
   private readonly actions: Record<ProducerAction, () => void> = {
-    pause: () => this.producer.pause(),
-    resume: () => this.producer.resume()
+    pause: () => this.producer.pauseProducer(),
+    resume: () => this.producer.resumeProducer()
   };
 
   readonly statusLabel = computed(() => PRODUCER_STATUS_LABELS[this.producer.status()]);

@@ -11,6 +11,6 @@ export const APP_CONFIG: ApplicationConfig = {
     provideRouter(ROUTES, withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideMarketDataWorker(),
     // The application starts with the default settings, independent of the initial route.
-    provideAppInitializer(() => inject(MarketDataProducerStore).start())
+    provideAppInitializer(() => inject(MarketDataProducerStore).startDefaultSimulation())
   ]
 };
