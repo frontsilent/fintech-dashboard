@@ -54,7 +54,7 @@ src/app/
     constants/              Defaults, settings limits, status labels, Wasm path
     models/                 Domain and Worker-protocol types
     domain/                 Pure business rules: metrics, validation, lifecycle, nominal rate, symbols (+ specs)
-    services/               MarketDataProducerStore (signals state) and MarketDataWorkerClient
+    services/               MarketDataProducerService (signal-based state service) and MarketDataWorkerService
     workers/                Worker entry, runtime (run lifecycle + scheduling), Wasm adapter, record decoder
   features/                 Routed pages; each feature owns its sub-components and constants
     dashboard/              Producer controls (+ status appearance/control maps), instruments table
@@ -84,7 +84,7 @@ Spacing has no variables: margins, paddings and gaps use explicit px values on a
 
 ## Architecture notes
 
-- `MarketDataProducerStore` is a root singleton started by `provideAppInitializer`, so the simulation starts with
+- `MarketDataProducerService` is a root singleton started by `provideAppInitializer`, so the simulation starts with
   the defaults and navigation never creates another producer or loses the running/paused state.
 - Every run has an id; results and acknowledgements from a previous run are ignored on both sides of the Worker boundary.
 - The Worker is created through the `MARKET_DATA_WORKER_FACTORY` token (`provideMarketDataWorker()`), which unit

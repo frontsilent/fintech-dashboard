@@ -2,10 +2,10 @@ import type { MarketDataGenerator } from './market-data-generator.model';
 import { MarketDataWorkerRuntime } from './market-data-worker.runtime';
 import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
 import type { MarketUpdate } from '../models/market-data.model';
-import type { MainToWorkerMessageMap, WorkerToMainMessage } from '../models/worker-message.model';
+import type { WorkerCommandMap, WorkerEvent } from '../models/worker-message.model';
 
 const update: MarketUpdate = {
-  instrument: 'ASSET-01',
+  instrument: 'ALFA',
   priceCents: 10_000,
   tradeQuantity: 1,
   bidCents: 9_996,
@@ -23,7 +23,7 @@ const elapsed = {
   idle: settings.batchIntervalMs * run.second * run.second
 };
 
-const initMessage = (runId: number): MainToWorkerMessageMap['init'] => ({
+const initMessage = (runId: number): WorkerCommandMap['init'] => ({
   type: 'init',
   runId,
   settings,
@@ -31,8 +31,8 @@ const initMessage = (runId: number): MainToWorkerMessageMap['init'] => ({
   wasmUrl: 'generator.wasm'
 });
 
-function setup(): { runtime: MarketDataWorkerRuntime; posted: WorkerToMainMessage[]; generator: jest.Mocked<MarketDataGenerator> } {
-  const posted: WorkerToMainMessage[] = [];
+function setup(): { runtime: MarketDataWorkerRuntime; posted: WorkerEvent[]; generator: jest.Mocked<MarketDataGenerator> } {
+  const posted: WorkerEvent[] = [];
   const generator: jest.Mocked<MarketDataGenerator> = {
     initializeRun: jest.fn(),
     generateUpdateBatch: jest.fn((count: number) => Array.from({ length: count }, () => update))
@@ -45,7 +45,7 @@ function setup(): { runtime: MarketDataWorkerRuntime; posted: WorkerToMainMessag
   return { runtime, posted, generator };
 }
 
-const typesOf = (messages: readonly WorkerToMainMessage[], runId?: number): string[] => messages
+const typesOf = (messages: readonly WorkerEvent[], runId?: number): string[] => messages
   .filter((message) => runId === undefined || message.runId === runId)
   .map(({ type }) => type);
 
@@ -77,14 +77,19 @@ describe('MarketDataWorkerRuntime', () => {
     expect(typesOf(posted)).toEqual(['ready', 'batch', 'paused', 'resumed', 'batch']);
   });
 
-  it('reports a pause requested during initialization once the generator is ready', async () => {
+  it('reports a pause requested during initialization as a single paused event once the generator is ready', async () => {
     const { runtime, posted } = setup();
 
     runtime.handleMainThreadMessage(initMessage(run.first));
     runtime.handleMainThreadMessage({ type: 'pause', runId: run.first });
     await jest.advanceTimersByTimeAsync(elapsed.oneBatch);
 
-    expect(typesOf(posted)).toEqual(['ready', 'paused']);
+    expect(typesOf(posted)).toEqual(['paused']);
+
+    runtime.handleMainThreadMessage({ type: 'resume', runId: run.first });
+    await jest.advanceTimersByTimeAsync(elapsed.oneBatch);
+
+    expect(typesOf(posted)).toEqual(['paused', 'resumed', 'batch']);
   });
 
   it('ignores commands for a previous run and stops the old run on re-initialization', async () => {
@@ -136,7 +141,7 @@ describe('MarketDataWorkerRuntime', () => {
   });
 
   it('reports generator loading failures', async () => {
-    const posted: WorkerToMainMessage[] = [];
+    const posted: WorkerEvent[] = [];
     const runtime = new MarketDataWorkerRuntime({
       postToMainThread: (message) => posted.push(message),
       loadGenerator: async () => Promise.reject(new Error('404 Not Found'))

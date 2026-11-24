@@ -4,13 +4,13 @@ import { dispatchMessage, type MessageHandlers } from '../../shared/utils/messag
 import { isValidProducerSettings } from '../domain/producer-settings.validation';
 import type { ProducerSettings } from '../models/producer-settings.model';
 import type {
-  MainToWorkerMessage,
-  MainToWorkerMessageMap,
-  WorkerToMainMessage
+  WorkerCommand,
+  WorkerCommandMap,
+  WorkerEvent
 } from '../models/worker-message.model';
 
 export type MarketDataWorkerRuntimeDependencies = {
-  readonly postToMainThread: (message: WorkerToMainMessage) => void;
+  readonly postToMainThread: (message: WorkerEvent) => void;
   readonly loadGenerator: MarketDataGeneratorLoader;
 }
 
@@ -21,7 +21,8 @@ type RunSession = {
   /** `null` until the generator has been loaded and initialized. */
   generator: MarketDataGenerator | null;
   isPaused: boolean;
-  timer: ReturnType<typeof setTimeout> | null;
+  /** Cancels the pending batch timeout; `null` when no batch is scheduled. */
+  cancelScheduledBatch: (() => void) | null;
 }
 
 /**
@@ -31,7 +32,7 @@ type RunSession = {
 export class MarketDataWorkerRuntime {
   private run: RunSession | null = null;
   private readonly dependencies: MarketDataWorkerRuntimeDependencies;
-  private readonly handlers: MessageHandlers<MainToWorkerMessageMap> = {
+  private readonly handlers: MessageHandlers<WorkerCommandMap> = {
     init: async (message) => this.startRun(message),
     pause: ({ runId }) => this.runIfActive(runId, (run) => this.pauseRun(run)),
     resume: ({ runId }) => this.runIfActive(runId, (run) => this.resumeRun(run)),
@@ -42,14 +43,14 @@ export class MarketDataWorkerRuntime {
     this.dependencies = dependencies;
   }
 
-  handleMainThreadMessage(message: MainToWorkerMessage): void {
+  handleMainThreadMessage(message: WorkerCommand): void {
     dispatchMessage(this.handlers, message.type, message);
   }
 
-  private async startRun({ runId, settings, seed, wasmUrl }: MainToWorkerMessageMap['init']): Promise<void> {
+  private async startRun({ runId, settings, seed, wasmUrl }: WorkerCommandMap['init']): Promise<void> {
     this.disposeActiveRun();
 
-    const run: RunSession = { runId, settings, generator: null, isPaused: false, timer: null };
+    const run: RunSession = { runId, settings, generator: null, isPaused: false, cancelScheduledBatch: null };
 
     this.run = run;
 
@@ -68,11 +69,12 @@ export class MarketDataWorkerRuntime {
 
       generator.initializeRun(seed, settings.instrumentCount);
       run.generator = generator;
-      this.postToMainThread({ type: 'ready', runId });
 
+      // A run paused during initialization reports a single `paused` event, so the UI never shows it as live.
       if (run.isPaused) {
         this.postToMainThread({ type: 'paused', runId });
       } else {
+        this.postToMainThread({ type: 'ready', runId });
         this.scheduleNextBatch(run);
       }
     } catch (error: unknown) {
@@ -116,10 +118,12 @@ export class MarketDataWorkerRuntime {
       return;
     }
 
-    run.timer = setTimeout(() => {
-      run.timer = null;
+    const timeoutId = setTimeout(() => {
+      run.cancelScheduledBatch = null;
       this.generateAndPostBatch(run);
     }, run.settings.batchIntervalMs);
+
+    run.cancelScheduledBatch = () => clearTimeout(timeoutId);
   }
 
   /** The next batch is scheduled only after the current one has been generated and posted. */
@@ -148,10 +152,8 @@ export class MarketDataWorkerRuntime {
   }
 
   private clearScheduledBatch(run: RunSession): void {
-    if (run.timer !== null) {
-      clearTimeout(run.timer);
-      run.timer = null;
-    }
+    run.cancelScheduledBatch?.();
+    run.cancelScheduledBatch = null;
   }
 
   private runIfActive(runId: number, action: (run: RunSession) => void): void {
@@ -168,7 +170,7 @@ export class MarketDataWorkerRuntime {
     return this.run === run;
   }
 
-  private postToMainThread(message: WorkerToMainMessage): void {
+  private postToMainThread(message: WorkerEvent): void {
     this.dependencies.postToMainThread(message);
   }
 }

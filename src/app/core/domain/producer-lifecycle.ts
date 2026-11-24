@@ -1,6 +1,6 @@
 import type { ProducerSettings } from '../models/producer-settings.model';
 import type { ProducerSnapshot, ProducerStatus } from '../models/producer-state.model';
-import type { WorkerToMainMessage } from '../models/worker-message.model';
+import type { WorkerEvent } from '../models/worker-message.model';
 
 /** Status each Worker event moves the run to; `null` keeps the current status. */
 const statusByWorkerMessage = {
@@ -9,7 +9,7 @@ const statusByWorkerMessage = {
   paused: 'paused',
   error: 'error',
   batch: null
-} as const satisfies Record<WorkerToMainMessage['type'], ProducerStatus | null>;
+} as const satisfies Record<WorkerEvent['type'], ProducerStatus | null>;
 
 const pausableStatuses: ReadonlySet<ProducerStatus> = new Set(['initializing', 'running']);
 
@@ -22,7 +22,7 @@ export function startProducerRun(current: ProducerSnapshot, settings: ProducerSe
   return { runId: current.runId + 1, status: 'initializing', settings };
 }
 
-export function isCurrentRunMessage(message: WorkerToMainMessage, activeRunId: number): boolean {
+export function isCurrentRunMessage(message: WorkerEvent, activeRunId: number): boolean {
   return message.runId === activeRunId;
 }
 
@@ -39,7 +39,7 @@ export function setProducerStatus(current: ProducerSnapshot, status: ProducerSta
 }
 
 /** Returns the same snapshot instance when the message is stale or does not change the status. */
-export function reduceProducerMessage(current: ProducerSnapshot, message: WorkerToMainMessage): ProducerSnapshot {
+export function reduceProducerMessage(current: ProducerSnapshot, message: WorkerEvent): ProducerSnapshot {
   const status = isCurrentRunMessage(message, current.runId) ? statusByWorkerMessage[message.type] : null;
 
   return status === null ? current : setProducerStatus(current, status);

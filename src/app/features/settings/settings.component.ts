@@ -10,7 +10,7 @@ import { PRODUCER_SETTINGS_LIMITS } from '../../core/constants/producer-settings
 import { PRODUCER_STATUS_LABELS } from '../../core/constants/producer-status.constants';
 import { calculateNominalUpdatesPerSecond } from '../../core/domain/nominal-rate';
 import type { ProducerSettingsField } from '../../core/models/producer-settings.model';
-import { MarketDataProducerStore } from '../../core/services/market-data-producer.store';
+import { MarketDataProducerService } from '../../core/services/market-data-producer.service';
 import { AlertComponent } from '../../shared/ui/alert/alert.component';
 import { ButtonDirective } from '../../shared/ui/button/button.directive';
 import { type DetailItem, DetailListComponent } from '../../shared/ui/detail-list/detail-list.component';
@@ -42,7 +42,7 @@ const rateFractionDigits = 2;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SettingsComponent {
-  private readonly producer = inject(MarketDataProducerStore);
+  private readonly producer = inject(MarketDataProducerService);
   private readonly submitted = signal(false);
 
   readonly fields = SETTINGS_FIELDS;
@@ -97,7 +97,7 @@ export class SettingsComponent {
     }
 
     try {
-      this.appliedRunId.set(this.producer.restartWithSettings(this.form.getRawValue()));
+      this.appliedRunId.set(this.producer.restart(this.form.getRawValue()));
       this.form.markAsPristine();
       this.submitted.set(false);
     } catch (error: unknown) {

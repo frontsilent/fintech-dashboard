@@ -12,6 +12,9 @@ export type MarketUpdate = {
   readonly askQuantity: number;
 }
 
+/** Every `MarketUpdate` field that holds an integer. */
+export type MarketUpdateNumericField = Exclude<keyof MarketUpdate, 'instrument'>;
+
 /** Values ready for presentation. Null means that the metric is not available yet. */
 export type InstrumentMetrics = {
   readonly instrument: string;

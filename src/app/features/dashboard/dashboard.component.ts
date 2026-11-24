@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 
 import { MarketInstrumentsTableComponent } from './market-instruments-table/market-instruments-table.component';
 import { ProducerControlsComponent } from './producer-controls/producer-controls.component';
-import { MarketDataProducerStore } from '../../core/services/market-data-producer.store';
+import { MarketDataProducerService } from '../../core/services/market-data-producer.service';
 import { AlertComponent } from '../../shared/ui/alert/alert.component';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { PanelComponent } from '../../shared/ui/panel/panel.component';
@@ -31,7 +31,7 @@ type OverviewItem = {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent {
-  readonly producer = inject(MarketDataProducerStore);
+  readonly producer = inject(MarketDataProducerService);
 
   readonly overviewItems = computed<readonly OverviewItem[]>(() => {
     const { instrumentCount, updatesPerBatch, batchIntervalMs } = this.producer.settings();

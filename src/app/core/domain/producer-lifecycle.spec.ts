@@ -8,7 +8,7 @@ import {
 } from './producer-lifecycle';
 import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
 import type { ProducerSnapshot } from '../models/producer-state.model';
-import type { WorkerToMainMessage } from '../models/worker-message.model';
+import type { WorkerEvent } from '../models/worker-message.model';
 
 const previousRunId = 4;
 const changedInstrumentCount = 8;
@@ -44,7 +44,7 @@ describe('producer lifecycle', () => {
 
   it('ignores messages belonging to an old run', () => {
     const state = startProducerRun(snapshot(), DEFAULT_PRODUCER_SETTINGS);
-    const staleMessage: WorkerToMainMessage = { type: 'paused', runId: state.runId - 1 };
+    const staleMessage: WorkerEvent = { type: 'paused', runId: state.runId - 1 };
 
     expect(isCurrentRunMessage(staleMessage, state.runId)).toBe(false);
     expect(reduceProducerMessage(state, staleMessage)).toBe(state);

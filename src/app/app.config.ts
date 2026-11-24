@@ -2,8 +2,8 @@ import { type ApplicationConfig, inject, provideAppInitializer, provideZoneChang
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 
 import { ROUTES } from './app.routes';
-import { MarketDataProducerStore } from './core/services/market-data-producer.store';
-import { provideMarketDataWorker } from './core/services/market-data-worker.providers';
+import { MarketDataProducerService } from './core/services/market-data-producer.service';
+import { provideMarketDataWorker } from './core/services/market-data-worker.provider';
 
 export const APP_CONFIG: ApplicationConfig = {
   providers: [
@@ -11,6 +11,6 @@ export const APP_CONFIG: ApplicationConfig = {
     provideRouter(ROUTES, withInMemoryScrolling({ scrollPositionRestoration: 'top' })),
     provideMarketDataWorker(),
     // The application starts with the default settings, independent of the initial route.
-    provideAppInitializer(() => inject(MarketDataProducerStore).startDefaultSimulation())
+    provideAppInitializer(() => inject(MarketDataProducerService).start())
   ]
 };

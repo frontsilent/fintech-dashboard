@@ -7,7 +7,7 @@ import {
   type ProducerControl
 } from './producer-controls.constants';
 import { PRODUCER_STATUS_LABELS } from '../../../core/constants/producer-status.constants';
-import { MarketDataProducerStore } from '../../../core/services/market-data-producer.store';
+import { MarketDataProducerService } from '../../../core/services/market-data-producer.service';
 import { ButtonDirective } from '../../../shared/ui/button/button.directive';
 import { StatusDotComponent } from '../../../shared/ui/status-dot/status-dot.component';
 
@@ -30,10 +30,10 @@ import { StatusDotComponent } from '../../../shared/ui/status-dot/status-dot.com
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProducerControlsComponent {
-  private readonly producer = inject(MarketDataProducerStore);
+  private readonly producer = inject(MarketDataProducerService);
   private readonly actions: Record<ProducerAction, () => void> = {
-    pause: () => this.producer.pauseProducer(),
-    resume: () => this.producer.resumeProducer()
+    pause: () => this.producer.pause(),
+    resume: () => this.producer.resume()
   };
 
   readonly statusLabel = computed(() => PRODUCER_STATUS_LABELS[this.producer.status()]);

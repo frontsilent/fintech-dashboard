@@ -19,7 +19,7 @@ describe('decodeMarketUpdates', () => {
 
     expect(decodeMarketUpdates(values, records.length)).toEqual([
       {
-        instrument: 'ASSET-01',
+        instrument: 'ALFA',
         priceCents: 10_200,
         tradeQuantity: 30,
         bidCents: 10_196,
@@ -28,7 +28,7 @@ describe('decodeMarketUpdates', () => {
         askQuantity: 400
       },
       {
-        instrument: 'ASSET-03',
+        instrument: 'GAMMA',
         priceCents: 9_996,
         tradeQuantity: 5,
         bidCents: 9_996,

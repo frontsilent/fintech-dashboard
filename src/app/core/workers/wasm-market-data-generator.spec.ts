@@ -24,7 +24,7 @@ describe('WasmMarketDataGenerator (compiled module)', () => {
 
     expect(updates).toHaveLength(batchSize);
     expect(updates.every(isValidMarketUpdate)).toBe(true);
-    expect([...instruments].every((symbol) => ['ASSET-01', 'ASSET-02', 'ASSET-03'].includes(symbol))).toBe(true);
+    expect([...instruments].every((symbol) => ['ALFA', 'BETA', 'GAMMA'].includes(symbol))).toBe(true);
   });
 
   it('is deterministic for the same seed', async () => {

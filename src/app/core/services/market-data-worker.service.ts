@@ -1,22 +1,22 @@
 import { DestroyRef, inject, Injectable } from '@angular/core';
 
 import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.token';
-import type { MainToWorkerMessage, WorkerToMainMessage } from '../models/worker-message.model';
+import type { WorkerCommand, WorkerEvent } from '../models/worker-message.model';
 
 export type MarketDataWorkerListeners = {
-  readonly message: (message: WorkerToMainMessage) => void;
+  readonly message: (message: WorkerEvent) => void;
   readonly error: (message: string) => void;
 }
 
 /** Owns the single market-data Worker instance and its typed message channel. */
 @Injectable({ providedIn: 'root' })
-export class MarketDataWorkerClient {
+export class MarketDataWorkerService {
   private readonly createWorker = inject(MARKET_DATA_WORKER_FACTORY);
   private worker: Worker | null = null;
   private listeners: MarketDataWorkerListeners | null = null;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.terminateWorker());
+    inject(DestroyRef).onDestroy(() => this.terminate());
   }
 
   /** Registers the consumer of Worker events. The Worker itself is created lazily on the first post. */
@@ -24,11 +24,11 @@ export class MarketDataWorkerClient {
     this.listeners = listeners;
   }
 
-  postToWorker(message: MainToWorkerMessage): void {
-    this.getOrCreateWorker().postMessage(message);
+  post(command: WorkerCommand): void {
+    this.getOrCreateWorker().postMessage(command);
   }
 
-  terminateWorker(): void {
+  terminate(): void {
     this.worker?.terminate();
     this.worker = null;
   }
@@ -40,7 +40,7 @@ export class MarketDataWorkerClient {
 
     const worker = this.createWorker();
 
-    worker.addEventListener('message', (event: MessageEvent<WorkerToMainMessage>) => {
+    worker.addEventListener('message', (event: MessageEvent<WorkerEvent>) => {
       this.listeners?.message(event.data);
     });
     worker.addEventListener('error', (event: ErrorEvent) => {
