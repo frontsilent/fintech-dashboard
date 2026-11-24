@@ -42,12 +42,12 @@ describe('producer lifecycle', () => {
     expect(state.status).toBe('error');
   });
 
-  it('ignores messages belonging to an old run', () => {
+  it('recognises only messages of the active run', () => {
     const state = startProducerRun(snapshot(), DEFAULT_PRODUCER_SETTINGS);
     const staleMessage: WorkerEvent = { type: 'paused', runId: state.runId - 1 };
 
     expect(isCurrentRunMessage(staleMessage, state.runId)).toBe(false);
-    expect(reduceProducerMessage(state, staleMessage)).toBe(state);
+    expect(isCurrentRunMessage({ ...staleMessage, runId: state.runId }, state.runId)).toBe(true);
   });
 
   it('does not change lifecycle state for a batch message', () => {

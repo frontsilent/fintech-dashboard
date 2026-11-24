@@ -1,4 +1,5 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { computed, inject, Injectable, InjectionToken, signal } from '@angular/core';
 
 import { MarketDataWorkerService } from './market-data-worker.service';
 import { createRandomSeed } from '../../shared/utils/create-random-seed';
@@ -24,6 +25,18 @@ import type { ProducerSettings } from '../models/producer-settings.model';
 import type { ProducerSnapshot } from '../models/producer-state.model';
 import type { WorkerEvent, WorkerEventMap } from '../models/worker-message.model';
 
+/** Creates the seed of each new run. Defaults to a cryptographically random seed; tests may provide a fixed one. */
+export const MARKET_DATA_SEED_FACTORY = new InjectionToken<() => bigint>('Market data seed factory', {
+  providedIn: 'root',
+  factory: () => createRandomSeed
+});
+
+/** Absolute URL of the Wasm generator, resolved against the document base URI. */
+export const MARKET_DATA_WASM_URL = new InjectionToken<string>('Market data Wasm URL', {
+  providedIn: 'root',
+  factory: () => new URL(MARKET_DATA_WASM_PATH, inject(DOCUMENT).baseURI).toString()
+});
+
 /**
  * Application-wide producer state. A root singleton, so navigation never creates another producer
  * and the active run (including its paused state) survives route changes.
@@ -31,6 +44,8 @@ import type { WorkerEvent, WorkerEventMap } from '../models/worker-message.model
 @Injectable({ providedIn: 'root' })
 export class MarketDataProducerService {
   private readonly workerService = inject(MarketDataWorkerService);
+  private readonly createSeed = inject(MARKET_DATA_SEED_FACTORY);
+  private readonly wasmUrl = inject(MARKET_DATA_WASM_URL);
   private readonly snapshot = signal<ProducerSnapshot>(createInitialProducerSnapshot(DEFAULT_PRODUCER_SETTINGS));
   private readonly metricsState = signal<readonly InstrumentMetrics[]>([]);
   private readonly errorState = signal<string | null>(null);
@@ -76,8 +91,8 @@ export class MarketDataProducerService {
       type: 'init',
       runId: run.runId,
       settings: run.settings,
-      seed: createRandomSeed(),
-      wasmUrl: new URL(MARKET_DATA_WASM_PATH, document.baseURI).toString()
+      seed: this.createSeed(),
+      wasmUrl: this.wasmUrl
     });
 
     return run.runId;

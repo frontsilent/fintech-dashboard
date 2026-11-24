@@ -38,9 +38,12 @@ export function setProducerStatus(current: ProducerSnapshot, status: ProducerSta
   return status === current.status ? current : { ...current, status };
 }
 
-/** Returns the same snapshot instance when the message is stale or does not change the status. */
+/**
+ * Expects a message of the current run; callers filter stale runs with `isCurrentRunMessage`.
+ * Returns the same snapshot instance when the message does not change the status.
+ */
 export function reduceProducerMessage(current: ProducerSnapshot, message: WorkerEvent): ProducerSnapshot {
-  const status = isCurrentRunMessage(message, current.runId) ? statusByWorkerMessage[message.type] : null;
+  const status = statusByWorkerMessage[message.type];
 
   return status === null ? current : setProducerStatus(current, status);
 }

@@ -1,43 +1,32 @@
-import {
-  assertValidProducerSettings,
-  isValidProducerSettings,
-  validateProducerSettings
-} from './producer-settings.validation';
+import { assertValidProducerSettings, isValidProducerSettings } from './producer-settings.validation';
 import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
 
 describe('producer settings validation', () => {
   it('accepts default settings', () => {
-    expect(validateProducerSettings(DEFAULT_PRODUCER_SETTINGS)).toEqual({ valid: true, errors: {} });
     expect(isValidProducerSettings(DEFAULT_PRODUCER_SETTINGS)).toBe(true);
+    expect(() => assertValidProducerSettings(DEFAULT_PRODUCER_SETTINGS)).not.toThrow();
   });
 
   it('accepts values at all inclusive boundaries', () => {
-    expect(validateProducerSettings({ instrumentCount: 1, updatesPerBatch: 1, batchIntervalMs: 50 }).valid).toBe(true);
-    expect(validateProducerSettings({ instrumentCount: 50, updatesPerBatch: 1_000, batchIntervalMs: 2_000 }).valid).toBe(true);
+    expect(isValidProducerSettings({ instrumentCount: 1, updatesPerBatch: 1, batchIntervalMs: 50 })).toBe(true);
+    expect(isValidProducerSettings({ instrumentCount: 50, updatesPerBatch: 1_000, batchIntervalMs: 2_000 })).toBe(true);
   });
 
   it('rejects non-integer values', () => {
-    const settings = { instrumentCount: 2.5, updatesPerBatch: 100, batchIntervalMs: 500 };
-    const result = validateProducerSettings(settings);
-
-    expect(result.valid).toBe(false);
-    expect(result.errors.instrumentCount).toBe('Value must be an integer.');
-    expect(isValidProducerSettings(settings)).toBe(false);
+    expect(isValidProducerSettings({ instrumentCount: 2.5, updatesPerBatch: 100, batchIntervalMs: 500 })).toBe(false);
   });
 
   it('rejects values outside configured ranges', () => {
-    const result = validateProducerSettings({ instrumentCount: 51, updatesPerBatch: 0, batchIntervalMs: 2_001 });
-
-    expect(result.valid).toBe(false);
-    expect(result.errors).toEqual({
-      instrumentCount: 'Value must be between 1 and 50.',
-      updatesPerBatch: 'Value must be between 1 and 1000.',
-      batchIntervalMs: 'Value must be between 50 and 2000.'
-    });
+    expect(isValidProducerSettings({ instrumentCount: 51, updatesPerBatch: 100, batchIntervalMs: 500 })).toBe(false);
+    expect(isValidProducerSettings({ instrumentCount: 5, updatesPerBatch: 0, batchIntervalMs: 500 })).toBe(false);
+    expect(isValidProducerSettings({ instrumentCount: 5, updatesPerBatch: 100, batchIntervalMs: 2_001 })).toBe(false);
   });
 
-  it('throws a useful error when settings are invalid', () => {
-    expect(() => assertValidProducerSettings({ instrumentCount: 0, updatesPerBatch: 100, batchIntervalMs: 500 }))
-      .toThrow(/instrumentCount/);
+  it('names every invalid field and its range in the thrown error', () => {
+    expect(() => assertValidProducerSettings({ instrumentCount: 51, updatesPerBatch: 0, batchIntervalMs: 500 }))
+      .toThrow(
+        'Invalid producer settings: instrumentCount must be an integer between 1 and 50; '
+        + 'updatesPerBatch must be an integer between 1 and 1000.'
+      );
   });
 });

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MarketDataProducerService } from './market-data-producer.service';
+import { MARKET_DATA_SEED_FACTORY, MARKET_DATA_WASM_URL, MarketDataProducerService } from './market-data-producer.service';
 import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.token';
 import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
 import type { MarketUpdate } from '../models/market-data.model';
@@ -32,13 +32,19 @@ const update: MarketUpdate = {
 const tradeVolume = BigInt(update.tradeQuantity);
 const noVolume = 0n;
 const nextRunId = 2;
-const changedSettings = { ...DEFAULT_PRODUCER_SETTINGS, instrumentCount: 2 };
+const fixedSeed = 42n;
+const wasmUrl = 'http://localhost/wasm/market_data_generator.wasm';
+const changedSettings ={ ...DEFAULT_PRODUCER_SETTINGS, instrumentCount: 2 };
 
 function setup(): { producer: MarketDataProducerService; worker: FakeWorker } {
   const worker = new FakeWorker();
 
   TestBed.configureTestingModule({
-    providers: [{ provide: MARKET_DATA_WORKER_FACTORY, useValue: () => worker }]
+    providers: [
+      { provide: MARKET_DATA_WORKER_FACTORY, useValue: () => worker },
+      { provide: MARKET_DATA_SEED_FACTORY, useValue: () => fixedSeed },
+      { provide: MARKET_DATA_WASM_URL, useValue: wasmUrl }
+    ]
   });
 
   const producer = TestBed.inject(MarketDataProducerService);
@@ -57,7 +63,13 @@ describe('MarketDataProducerService', () => {
     expect(producer.settings()).toEqual(DEFAULT_PRODUCER_SETTINGS);
     expect(producer.metrics()).toHaveLength(DEFAULT_PRODUCER_SETTINGS.instrumentCount);
     expect(producer.metrics().every((metric) => metric.tradingVolume === noVolume && metric.lastPriceCents === null)).toBe(true);
-    expect(worker.lastCommand()).toMatchObject({ type: 'init', runId: 1, settings: DEFAULT_PRODUCER_SETTINGS });
+    expect(worker.lastCommand()).toEqual({
+      type: 'init',
+      runId: 1,
+      settings: DEFAULT_PRODUCER_SETTINGS,
+      seed: fixedSeed,
+      wasmUrl
+    });
   });
 
   it('becomes live when the Worker is ready and aggregates batches of the current run', () => {
