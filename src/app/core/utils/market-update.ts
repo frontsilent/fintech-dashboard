@@ -1,9 +1,22 @@
 import { isNonNegativeSafeInteger, isPositiveSafeInteger } from '../../shared/utils/number-range';
-import { MARKET_UPDATE_NON_NEGATIVE_FIELDS, MARKET_UPDATE_POSITIVE_FIELDS } from '../constants/market-data.constants';
 import type { MarketUpdate, MarketUpdateNumericField } from '../models/market-data.model';
 
 type MarketUpdateRule = (update: MarketUpdate) => boolean;
 type NumberPredicate = (value: number) => boolean;
+
+/** Prices and trade size must be strictly positive safe integers. */
+const positiveFields = [
+  'priceCents',
+  'tradeQuantity',
+  'bidCents',
+  'askCents'
+] as const satisfies readonly MarketUpdateNumericField[];
+
+/** Order-book depth may be empty but never negative. */
+const nonNegativeFields = [
+  'bidQuantity',
+  'askQuantity'
+] as const satisfies readonly MarketUpdateNumericField[];
 
 /** True when every listed numeric field of the update satisfies the predicate. */
 function fieldsSatisfy(
@@ -19,11 +32,11 @@ function hasInstrument({ instrument }: MarketUpdate): boolean {
 }
 
 function hasPositiveValues(update: MarketUpdate): boolean {
-  return fieldsSatisfy(update, MARKET_UPDATE_POSITIVE_FIELDS, isPositiveSafeInteger);
+  return fieldsSatisfy(update, positiveFields, isPositiveSafeInteger);
 }
 
 function hasNonNegativeQuantities(update: MarketUpdate): boolean {
-  return fieldsSatisfy(update, MARKET_UPDATE_NON_NEGATIVE_FIELDS, isNonNegativeSafeInteger);
+  return fieldsSatisfy(update, nonNegativeFields, isNonNegativeSafeInteger);
 }
 
 /** The ask must sit strictly above the bid; a locked or crossed book is rejected. */
@@ -45,7 +58,7 @@ const marketUpdateRules: readonly MarketUpdateRule[] = [
   isTradedAtBookPrice
 ];
 
-/** Guards the domain boundary so malformed producer messages cannot corrupt aggregates. */
+/** Guards the producer boundary so malformed producer messages cannot corrupt aggregates. */
 export function isValidMarketUpdate(update: MarketUpdate): boolean {
   return marketUpdateRules.every((rule) => rule(update));
 }

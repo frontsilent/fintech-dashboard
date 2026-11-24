@@ -1,9 +1,9 @@
 import type { Provider } from '@angular/core';
 
-import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.token';
+import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.service';
 
 /**
- * Kept separate from the token so unit tests never compile `import.meta.url`,
+ * Kept separate from the token and service so unit tests never compile `import.meta.url`,
  * which the Angular builder needs to bundle the Worker.
  */
 export function provideMarketDataWorker(): Provider {

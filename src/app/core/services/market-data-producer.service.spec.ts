@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 
 import { MARKET_DATA_SEED_FACTORY, MARKET_DATA_WASM_URL, MarketDataProducerService } from './market-data-producer.service';
-import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.token';
-import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
+import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.service';
+import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
 import type { MarketUpdate } from '../models/market-data.model';
 import type { WorkerCommand, WorkerEvent } from '../models/worker-message.model';
 

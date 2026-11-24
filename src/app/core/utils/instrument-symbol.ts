@@ -1,5 +1,3 @@
-import type { MarketUpdateNumericField } from '../models/market-data.model';
-
 /**
  * Ticker symbols assigned to generator instruments by zero-based index: the Greek alphabet
  * in order, followed by extra symbols so every supported instrument count has unique names.
@@ -14,19 +12,17 @@ export const INSTRUMENT_SYMBOLS = [
   'JADE', 'KILO', 'KITE', 'LIMA', 'LUNA', 'MESA'
 ] as const;
 
-/** Prices and trade size must be strictly positive safe integers. */
-export const MARKET_UPDATE_POSITIVE_FIELDS = [
-  'priceCents',
-  'tradeQuantity',
-  'bidCents',
-  'askCents'
-] as const satisfies readonly MarketUpdateNumericField[];
+/** Maps a zero-based generator instrument index to its ticker symbol (`0` → `ALFA`). */
+export function createInstrumentSymbol(index: number): string {
+  const symbol = INSTRUMENT_SYMBOLS[index];
 
-/** Order-book depth may be empty but never negative. */
-export const MARKET_UPDATE_NON_NEGATIVE_FIELDS = [
-  'bidQuantity',
-  'askQuantity'
-] as const satisfies readonly MarketUpdateNumericField[];
+  if (symbol === undefined) {
+    throw new RangeError(`No instrument symbol for index ${index}.`);
+  }
 
-/** Resolved against `document.baseURI`; the file is copied to `public/wasm` by `npm run wasm:build`. */
-export const MARKET_DATA_WASM_PATH = 'wasm/market_data_generator.wasm';
+  return symbol;
+}
+
+export function createInstrumentSymbols(count: number): readonly string[] {
+  return Array.from({ length: count }, (_, index) => createInstrumentSymbol(index));
+}

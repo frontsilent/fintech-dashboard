@@ -1,5 +1,4 @@
-import type { ProducerSettings } from '../models/producer-settings.model';
-import type { ProducerSnapshot, ProducerStatus } from '../models/producer-state.model';
+import type { ProducerSettings, ProducerSnapshot, ProducerStatus } from '../models/producer.model';
 import type { WorkerEvent } from '../models/worker-message.model';
 
 /** Status each Worker event moves the run to; `null` keeps the current status. */

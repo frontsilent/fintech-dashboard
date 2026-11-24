@@ -51,11 +51,11 @@ The Jest suite also runs the compiled `public/wasm/market_data_generator.wasm`
 src/app/
   app.*                     Shell (top bar, navigation, footer) and bootstrap config
   core/                     App-wide business code, no UI
-    constants/              Defaults, settings limits, status labels, Wasm path
-    models/                 Domain and Worker-protocol types
-    domain/                 Pure business rules: metrics, validation, lifecycle, nominal rate, symbols (+ specs)
+    constants/              Default settings, settings limits, status labels
+    models/                 Market-data, producer and Worker-protocol types
+    utils/                  Pure business rules: metrics, validation, lifecycle, nominal rate, symbols (+ specs)
     services/               MarketDataProducerService (signal-based state service) and MarketDataWorkerService
-    workers/                Worker entry, runtime (run lifecycle + scheduling), Wasm adapter, record decoder
+    workers/                Worker entry, runtime (run lifecycle + scheduling), Wasm adapter with record decoder
   features/                 Routed pages; each feature owns its sub-components and constants
     dashboard/              Producer controls (+ status appearance/control maps), instruments table
     settings/               Settings form factory and field config
@@ -78,7 +78,11 @@ Spacing has no variables: margins, paddings and gaps use explicit px values on a
 ### Dependency rules
 
 - `shared` never imports from `core` or `features`.
-- `core/domain` and `core/workers` stay free of Angular and the DOM so the Worker bundle can use them.
+- Placement is decided by what code knows, not by who uses it: code that knows app concepts (market updates,
+  instruments, producer, runs) goes to `core`; code that could be copied unchanged into another project goes to
+  `shared`, even if only `core` uses it.
+- `models` holds types only; a type that exists to describe one function's input stays next to that function.
+- `core/utils` and `core/workers` stay free of Angular and the DOM so the Worker bundle can use them.
 - `features` may import `core` and `shared`, never another feature.
 - Value-to-config mappings use typed lookup objects (`as const satisfies Record<…>`) instead of `switch`.
 

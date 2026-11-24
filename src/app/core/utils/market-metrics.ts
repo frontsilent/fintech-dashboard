@@ -1,4 +1,4 @@
-import { isValidMarketUpdate } from './market-update.validation';
+import { isValidMarketUpdate } from './market-update';
 import type {
   InstrumentAccumulator,
   InstrumentMetrics,

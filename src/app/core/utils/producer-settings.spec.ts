@@ -1,5 +1,7 @@
-import { assertValidProducerSettings, isValidProducerSettings } from './producer-settings.validation';
-import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
+import { assertValidProducerSettings, calculateNominalUpdatesPerSecond, isValidProducerSettings } from './producer-settings';
+import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
+
+const defaultRate = 200;
 
 describe('producer settings validation', () => {
   it('accepts default settings', () => {
@@ -28,5 +30,15 @@ describe('producer settings validation', () => {
         'Invalid producer settings: instrumentCount must be an integer between 1 and 50; '
         + 'updatesPerBatch must be an integer between 1 and 1000.'
       );
+  });
+});
+
+describe('calculateNominalUpdatesPerSecond', () => {
+  it('returns the rate across all instruments', () => {
+    expect(calculateNominalUpdatesPerSecond({ updatesPerBatch: 100, batchIntervalMs: 500 })).toBe(defaultRate);
+  });
+
+  it('returns zero for a non-positive interval', () => {
+    expect(calculateNominalUpdatesPerSecond({ updatesPerBatch: 100, batchIntervalMs: 0 })).toBe(0);
   });
 });

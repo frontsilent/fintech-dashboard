@@ -1,6 +1,6 @@
-import { decodeMarketUpdates, MARKET_UPDATE_RECORD_BYTES, MARKET_UPDATE_RECORD_FIELD_COUNT } from './decode-market-updates';
-import type { MarketDataGenerator } from './market-data-generator.model';
+import type { MarketDataGenerator } from './market-data-worker.runtime';
 import type { MarketUpdate } from '../models/market-data.model';
+import { createInstrumentSymbol } from '../utils/instrument-symbol';
 
 /** Generator functions in TypeScript naming. */
 type GeneratorAbi = {
@@ -23,6 +23,40 @@ type GeneratorExports = { readonly memory: WebAssembly.Memory } & {
 };
 
 const nullPointer = 0;
+
+/**
+ * Position of each value inside one generator record. A record is a sequence of little-endian u32 values
+ * and must match the ABI layout documented in `wasm/market-data-generator/src/lib.rs`.
+ */
+const recordFieldOffset = {
+  instrumentIndex: 0,
+  priceCents: 1,
+  tradeQuantity: 2,
+  bidCents: 3,
+  askCents: 4,
+  bidQuantity: 5,
+  askQuantity: 6
+} as const;
+
+export const MARKET_UPDATE_RECORD_FIELD_COUNT = Object.keys(recordFieldOffset).length;
+export const MARKET_UPDATE_RECORD_BYTES = MARKET_UPDATE_RECORD_FIELD_COUNT * Uint32Array.BYTES_PER_ELEMENT;
+
+/** Copies `count` records out of Wasm memory into plain objects that can be posted to the main thread. */
+export function decodeMarketUpdates(values: Uint32Array, count: number): MarketUpdate[] {
+  return Array.from({ length: count }, (_, index) => {
+    const offset = index * MARKET_UPDATE_RECORD_FIELD_COUNT;
+
+    return {
+      instrument: createInstrumentSymbol(values[offset + recordFieldOffset.instrumentIndex]),
+      priceCents: values[offset + recordFieldOffset.priceCents],
+      tradeQuantity: values[offset + recordFieldOffset.tradeQuantity],
+      bidCents: values[offset + recordFieldOffset.bidCents],
+      askCents: values[offset + recordFieldOffset.askCents],
+      bidQuantity: values[offset + recordFieldOffset.bidQuantity],
+      askQuantity: values[offset + recordFieldOffset.askQuantity]
+    };
+  });
+}
 
 function hasGeneratorAbi(exports: WebAssembly.Exports): exports is GeneratorExports {
   return exports['memory'] instanceof WebAssembly.Memory

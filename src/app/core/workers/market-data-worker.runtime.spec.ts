@@ -1,6 +1,5 @@
-import type { MarketDataGenerator } from './market-data-generator.model';
-import { MarketDataWorkerRuntime } from './market-data-worker.runtime';
-import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
+import { type MarketDataGenerator, MarketDataWorkerRuntime } from './market-data-worker.runtime';
+import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
 import type { MarketUpdate } from '../models/market-data.model';
 import type { WorkerCommandMap, WorkerEvent } from '../models/worker-message.model';
 

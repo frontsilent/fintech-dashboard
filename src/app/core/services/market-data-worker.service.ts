@@ -1,7 +1,9 @@
-import { DestroyRef, inject, Injectable } from '@angular/core';
+import { DestroyRef, inject, Injectable, InjectionToken } from '@angular/core';
 
-import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.token';
 import type { WorkerCommand, WorkerEvent } from '../models/worker-message.model';
+
+/** Creates the market-data Worker. Provided by `provideMarketDataWorker()`; replaced by a fake in unit tests. */
+export const MARKET_DATA_WORKER_FACTORY = new InjectionToken<() => Worker>('Market data worker factory');
 
 export type MarketDataWorkerListeners = {
   readonly message: (message: WorkerEvent) => void;

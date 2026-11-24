@@ -5,11 +5,12 @@ import { MarketDataWorkerService } from './market-data-worker.service';
 import { createRandomSeed } from '../../shared/utils/create-random-seed';
 import { getErrorMessage } from '../../shared/utils/get-error-message';
 import { dispatchMessage, type MessageHandlers } from '../../shared/utils/message-dispatch';
-import { MARKET_DATA_WASM_PATH } from '../constants/market-data.constants';
-import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
-import { createInstrumentSymbols } from '../domain/instrument-symbol';
-import { applyMarketUpdates, createMarketMetricsState, selectInstrumentMetrics } from '../domain/market-metrics';
-import { calculateNominalUpdatesPerSecond } from '../domain/nominal-rate';
+import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
+import type { InstrumentMetrics, MarketMetricsState } from '../models/market-data.model';
+import type { ProducerSettings, ProducerSnapshot } from '../models/producer.model';
+import type { WorkerEvent, WorkerEventMap } from '../models/worker-message.model';
+import { createInstrumentSymbols } from '../utils/instrument-symbol';
+import { applyMarketUpdates, createMarketMetricsState, selectInstrumentMetrics } from '../utils/market-metrics';
 import {
   canPauseProducer,
   canResumeProducer,
@@ -18,12 +19,11 @@ import {
   reduceProducerMessage,
   setProducerStatus,
   startProducerRun
-} from '../domain/producer-lifecycle';
-import { assertValidProducerSettings } from '../domain/producer-settings.validation';
-import type { InstrumentMetrics, MarketMetricsState } from '../models/market-data.model';
-import type { ProducerSettings } from '../models/producer-settings.model';
-import type { ProducerSnapshot } from '../models/producer-state.model';
-import type { WorkerEvent, WorkerEventMap } from '../models/worker-message.model';
+} from '../utils/producer-lifecycle';
+import { assertValidProducerSettings, calculateNominalUpdatesPerSecond } from '../utils/producer-settings';
+
+/** Relative to `document.baseURI`; the file is copied to `public/wasm` by `npm run wasm:build`. */
+const marketDataWasmPath = 'wasm/market_data_generator.wasm';
 
 /** Creates the seed of each new run. Defaults to a cryptographically random seed; tests may provide a fixed one. */
 export const MARKET_DATA_SEED_FACTORY = new InjectionToken<() => bigint>('Market data seed factory', {
@@ -34,7 +34,7 @@ export const MARKET_DATA_SEED_FACTORY = new InjectionToken<() => bigint>('Market
 /** Absolute URL of the Wasm generator, resolved against the document base URI. */
 export const MARKET_DATA_WASM_URL = new InjectionToken<string>('Market data Wasm URL', {
   providedIn: 'root',
-  factory: () => new URL(MARKET_DATA_WASM_PATH, inject(DOCUMENT).baseURI).toString()
+  factory: () => new URL(marketDataWasmPath, inject(DOCUMENT).baseURI).toString()
 });
 
 /**

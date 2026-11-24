@@ -1,5 +1,5 @@
 import type { MarketUpdate } from './market-data.model';
-import type { ProducerSettings } from './producer-settings.model';
+import type { ProducerSettings } from './producer.model';
 import type { MessageByType } from '../../shared/utils/message-dispatch';
 
 /** Every message on the Worker channel is tagged with the run it belongs to; stale runs are ignored. */

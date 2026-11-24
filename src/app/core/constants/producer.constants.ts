@@ -1,5 +1,5 @@
 import type { NumberRange } from '../../shared/utils/number-range';
-import type { ProducerSettings, ProducerSettingsField } from '../models/producer-settings.model';
+import type { ProducerSettings, ProducerSettingsField, ProducerStatus } from '../models/producer.model';
 
 export const DEFAULT_PRODUCER_SETTINGS: ProducerSettings = {
   instrumentCount: 5,
@@ -19,3 +19,11 @@ export const PRODUCER_SETTINGS_FIELDS = [
   'updatesPerBatch',
   'batchIntervalMs'
 ] as const satisfies readonly ProducerSettingsField[];
+
+export const PRODUCER_STATUS_LABELS = {
+  idle: 'Idle',
+  initializing: 'Initializing',
+  running: 'Live',
+  paused: 'Paused',
+  error: 'Error'
+} as const satisfies Record<ProducerStatus, string>;

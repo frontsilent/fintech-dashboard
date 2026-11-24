@@ -4,13 +4,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import { map } from 'rxjs';
 
-import { createProducerSettingsForm } from './settings-form';
-import { SETTINGS_FIELDS } from './settings.constants';
-import { PRODUCER_SETTINGS_LIMITS } from '../../core/constants/producer-settings.constants';
-import { PRODUCER_STATUS_LABELS } from '../../core/constants/producer-status.constants';
-import { calculateNominalUpdatesPerSecond } from '../../core/domain/nominal-rate';
-import type { ProducerSettingsField } from '../../core/models/producer-settings.model';
+import { createProducerSettingsForm, SETTINGS_FIELDS } from './settings-form';
+import { PRODUCER_SETTINGS_LIMITS, PRODUCER_STATUS_LABELS } from '../../core/constants/producer.constants';
+import type { ProducerSettingsField } from '../../core/models/producer.model';
 import { MarketDataProducerService } from '../../core/services/market-data-producer.service';
+import { calculateNominalUpdatesPerSecond } from '../../core/utils/producer-settings';
 import { AlertComponent } from '../../shared/ui/alert/alert.component';
 import { ButtonDirective } from '../../shared/ui/button/button.directive';
 import { type DetailItem, DetailListComponent } from '../../shared/ui/detail-list/detail-list.component';

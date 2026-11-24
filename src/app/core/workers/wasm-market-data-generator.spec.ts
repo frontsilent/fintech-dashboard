@@ -1,8 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-import { WasmMarketDataGenerator } from './wasm-market-data-generator';
-import { isValidMarketUpdate } from '../domain/market-update.validation';
+import {
+  decodeMarketUpdates,
+  MARKET_UPDATE_RECORD_BYTES,
+  MARKET_UPDATE_RECORD_FIELD_COUNT,
+  WasmMarketDataGenerator
+} from './wasm-market-data-generator';
+import { isValidMarketUpdate } from '../utils/market-update';
 
 const wasmPath = resolve(__dirname, '../../../../public/wasm/market_data_generator.wasm');
 const seed = 42n;
@@ -12,6 +17,46 @@ const invalidInstrumentCount = 51;
 
 const createGenerator = async (): Promise<WasmMarketDataGenerator> =>
   WasmMarketDataGenerator.instantiateFromBytes(readFileSync(wasmPath));
+
+/** Records in ABI field order (property insertion order matches the layout). */
+const records = [
+  { instrumentIndex: 0, priceCents: 10_200, tradeQuantity: 30, bidCents: 10_196, askCents: 10_200, bidQuantity: 600, askQuantity: 400 },
+  { instrumentIndex: 2, priceCents: 9_996, tradeQuantity: 5, bidCents: 9_996, askCents: 10_000, bidQuantity: 12, askQuantity: 0 }
+];
+
+const fieldCount = Object.keys(records[0]).length;
+
+describe('decodeMarketUpdates', () => {
+  it('describes the 7 x u32 record layout used by the Wasm ABI', () => {
+    expect(MARKET_UPDATE_RECORD_FIELD_COUNT).toBe(fieldCount);
+    expect(MARKET_UPDATE_RECORD_BYTES).toBe(fieldCount * Uint32Array.BYTES_PER_ELEMENT);
+  });
+
+  it('maps records to market updates with instrument symbols', () => {
+    const values = Uint32Array.from(records.flatMap((record) => Object.values(record)));
+
+    expect(decodeMarketUpdates(values, records.length)).toEqual([
+      {
+        instrument: 'ALFA',
+        priceCents: 10_200,
+        tradeQuantity: 30,
+        bidCents: 10_196,
+        askCents: 10_200,
+        bidQuantity: 600,
+        askQuantity: 400
+      },
+      {
+        instrument: 'GAMMA',
+        priceCents: 9_996,
+        tradeQuantity: 5,
+        bidCents: 9_996,
+        askCents: 10_000,
+        bidQuantity: 12,
+        askQuantity: 0
+      }
+    ]);
+  });
+});
 
 describe('WasmMarketDataGenerator (compiled module)', () => {
   it('returns batches of the requested size with valid updates for configured instruments', async () => {

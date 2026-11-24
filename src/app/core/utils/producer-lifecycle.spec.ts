@@ -6,8 +6,8 @@ import {
   reduceProducerMessage,
   startProducerRun
 } from './producer-lifecycle';
-import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer-settings.constants';
-import type { ProducerSnapshot } from '../models/producer-state.model';
+import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
+import type { ProducerSnapshot } from '../models/producer.model';
 import type { WorkerEvent } from '../models/worker-message.model';
 
 const previousRunId = 4;

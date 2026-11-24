@@ -1,4 +1,4 @@
-import { isValidMarketUpdate } from './market-update.validation';
+import { isValidMarketUpdate } from './market-update';
 import type { MarketUpdate } from '../models/market-data.model';
 
 const update = (overrides: Partial<MarketUpdate> = {}): MarketUpdate => ({

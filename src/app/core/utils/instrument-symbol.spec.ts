@@ -1,6 +1,5 @@
-import { createInstrumentSymbol, createInstrumentSymbols } from './instrument-symbol';
-import { INSTRUMENT_SYMBOLS } from '../constants/market-data.constants';
-import { PRODUCER_SETTINGS_LIMITS } from '../constants/producer-settings.constants';
+import { createInstrumentSymbol, createInstrumentSymbols, INSTRUMENT_SYMBOLS } from './instrument-symbol';
+import { PRODUCER_SETTINGS_LIMITS } from '../constants/producer.constants';
 
 const maxInstruments = PRODUCER_SETTINGS_LIMITS.instrumentCount.max;
 const symbolCount = 2;

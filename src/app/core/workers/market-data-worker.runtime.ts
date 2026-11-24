@@ -1,13 +1,23 @@
-import type { MarketDataGenerator, MarketDataGeneratorLoader } from './market-data-generator.model';
 import { getErrorMessage } from '../../shared/utils/get-error-message';
 import { dispatchMessage, type MessageHandlers } from '../../shared/utils/message-dispatch';
-import { isValidProducerSettings } from '../domain/producer-settings.validation';
-import type { ProducerSettings } from '../models/producer-settings.model';
+import type { MarketUpdate } from '../models/market-data.model';
+import type { ProducerSettings } from '../models/producer.model';
 import type {
   WorkerCommand,
   WorkerCommandMap,
   WorkerEvent
 } from '../models/worker-message.model';
+import { isValidProducerSettings } from '../utils/producer-settings';
+
+/** Stateful market-data generator used by the runtime; implemented by `WasmMarketDataGenerator`. */
+export type MarketDataGenerator = {
+  /** Resets per-instrument state for a new run. Throws when the generator rejects the configuration. */
+  readonly initializeRun: (seed: bigint, instrumentCount: number) => void;
+  /** Returns exactly `count` updates. Throws when generation fails. */
+  readonly generateUpdateBatch: (count: number) => readonly MarketUpdate[];
+}
+
+export type MarketDataGeneratorLoader = (wasmUrl: string) => Promise<MarketDataGenerator>;
 
 export type MarketDataWorkerRuntimeDependencies = {
   readonly postToMainThread: (message: WorkerEvent) => void;

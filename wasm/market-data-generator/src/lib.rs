@@ -6,7 +6,7 @@ use std::{ptr, slice};
 
 const MAX_INSTRUMENTS: u32 = 50;
 const MAX_BATCH_SIZE: u32 = 1_000;
-/// Seven little-endian `u32` fields per record; mirrored by `decode-market-updates.ts`.
+/// Seven little-endian `u32` fields per record; mirrored by `wasm-market-data-generator.ts`.
 const RECORD_FIELDS: usize = 7;
 const RECORD_BYTES: usize = RECORD_FIELDS * size_of::<u32>();
 const BUFFER_ALIGN: usize = align_of::<u32>();

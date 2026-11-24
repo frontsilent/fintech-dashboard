@@ -1,6 +1,10 @@
 import { isIntegerInRange } from '../../shared/utils/number-range';
-import { PRODUCER_SETTINGS_FIELDS, PRODUCER_SETTINGS_LIMITS } from '../constants/producer-settings.constants';
-import type { ProducerSettings, ProducerSettingsField } from '../models/producer-settings.model';
+import { PRODUCER_SETTINGS_FIELDS, PRODUCER_SETTINGS_LIMITS } from '../constants/producer.constants';
+import type { ProducerSettings, ProducerSettingsField } from '../models/producer.model';
+
+type RateSettings = Pick<ProducerSettings, 'updatesPerBatch' | 'batchIntervalMs'>;
+
+const msPerSecond = 1_000;
 
 /**
  * Domain guard for settings that reach the producer. User-facing field messages belong to the
@@ -28,4 +32,9 @@ export function assertValidProducerSettings(settings: ProducerSettings): void {
 
     throw new RangeError(`Invalid producer settings: ${details}.`);
   }
+}
+
+/** Requested updates per second across all instruments; `0` when the interval is not positive. */
+export function calculateNominalUpdatesPerSecond({ updatesPerBatch, batchIntervalMs }: RateSettings): number {
+  return batchIntervalMs > 0 ? updatesPerBatch * msPerSecond / batchIntervalMs : 0;
 }
