@@ -17,8 +17,9 @@ Angular 20 standalone application for a realtime market-data simulation.
 
 - Node.js 20.19+ or 22.12+
 - npm 10+
-- Rust toolchain (via rustup). The `wasm32-unknown-unknown` (build) and `wasm32-wasip1` (tests) targets are
-  installed automatically by the Wasm scripts.
+- Rust toolchain installed with [rustup](https://rustup.rs) (on macOS, not the Homebrew `rust` package, which has no
+  rustup). The `wasm32-unknown-unknown` (build) and `wasm32-wasip1` (tests) targets are installed automatically by
+  the Wasm scripts.
 
 ## Getting started
 

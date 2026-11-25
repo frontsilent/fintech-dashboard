@@ -1,0 +1,5 @@
+# Store and check out text files with LF on every OS, regardless of each contributor's `core.autocrlf` setting.
+* text=auto eol=lf
+
+# Build artifacts and other binaries: never convert line endings or show text diffs.
+*.wasm binary
