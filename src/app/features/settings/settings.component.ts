@@ -79,11 +79,6 @@ export class SettingsComponent {
     return isVisible ? getIntegerRangeErrorMessage(control.errors, this.limits[field]) : null;
   }
 
-  resetForm(): void {
-    this.form.reset(this.producer.settings());
-    this.clearFeedback();
-  }
-
   applySettings(): void {
     this.clearFeedback();
     this.submitted.set(true);
