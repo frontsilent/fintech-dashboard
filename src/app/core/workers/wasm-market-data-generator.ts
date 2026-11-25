@@ -2,25 +2,34 @@ import type { MarketDataGenerator } from './market-data-worker.runtime';
 import type { MarketUpdate } from '../models/market-data.model';
 import { createInstrumentSymbol } from '../utils/instrument-symbol';
 
-/** Generator functions in TypeScript naming. */
-type GeneratorAbi = {
+/** Exports of the Rust crate (`wasm/market-data-generator/src/lib.rs`) in TypeScript naming. */
+type GeneratorExports = {
+  readonly memory: WebAssembly.Memory;
   readonly init: (seed: bigint, instrumentCount: number) => number;
   readonly allocBuffer: (length: number) => number;
   readonly deallocBuffer: (pointer: number, length: number) => void;
   readonly generateBatch: (count: number, pointer: number, length: number) => number;
+};
+
+type GeneratorExportCandidates = { readonly [TName in keyof GeneratorExports]: WebAssembly.ExportValue | undefined };
+
+/** Maps Rust export names to TypeScript names at the Wasm boundary. */
+function pickGeneratorExports(exports: WebAssembly.Exports): GeneratorExportCandidates {
+  return {
+    memory: exports['memory'],
+    init: exports['init'],
+    allocBuffer: exports['alloc_buffer'],
+    deallocBuffer: exports['dealloc_buffer'],
+    generateBatch: exports['generate_batch']
+  };
 }
 
-/** Export names produced by the Rust crate (`wasm/market-data-generator/src/lib.rs`). */
-const abiExportNames = {
-  init: 'init',
-  allocBuffer: 'alloc_buffer',
-  deallocBuffer: 'dealloc_buffer',
-  generateBatch: 'generate_batch'
-} as const satisfies Record<keyof GeneratorAbi, string>;
+function hasExpectedExports(candidates: GeneratorExportCandidates): candidates is GeneratorExports {
+  const { memory, ...functions } = candidates;
 
-type GeneratorExports = { readonly memory: WebAssembly.Memory } & {
-  readonly [TFunction in keyof GeneratorAbi as (typeof abiExportNames)[TFunction]]: GeneratorAbi[TFunction];
-};
+  return memory instanceof WebAssembly.Memory
+    && Object.values(functions).every((value) => typeof value === 'function');
+}
 
 const nullPointer = 0;
 
@@ -58,11 +67,6 @@ export function decodeMarketUpdates(values: Uint32Array, count: number): MarketU
   });
 }
 
-function hasGeneratorAbi(exports: WebAssembly.Exports): exports is GeneratorExports {
-  return exports['memory'] instanceof WebAssembly.Memory
-    && Object.values(abiExportNames).every((name) => typeof exports[name] === 'function');
-}
-
 /** Adapts the raw Wasm ABI (pointers and buffers) to the `MarketDataGenerator` contract. */
 export class WasmMarketDataGenerator implements MarketDataGenerator {
   private readonly exports: GeneratorExports;
@@ -73,12 +77,13 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
 
   static async instantiateFromBytes(bytes: BufferSource): Promise<WasmMarketDataGenerator> {
     const { instance } = await WebAssembly.instantiate(bytes, {});
+    const exports = pickGeneratorExports(instance.exports);
 
-    if (!hasGeneratorAbi(instance.exports)) {
+    if (!hasExpectedExports(exports)) {
       throw new Error('WebAssembly module does not expose the expected generator ABI.');
     }
 
-    return new WasmMarketDataGenerator(instance.exports);
+    return new WasmMarketDataGenerator(exports);
   }
 
   static async loadFromUrl(url: string): Promise<WasmMarketDataGenerator> {
@@ -99,14 +104,14 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
 
   generateUpdateBatch(count: number): readonly MarketUpdate[] {
     const byteLength = count * MARKET_UPDATE_RECORD_BYTES;
-    const pointer = this.exports.alloc_buffer(byteLength);
+    const pointer = this.exports.allocBuffer(byteLength);
 
     if (pointer === nullPointer) {
       throw new Error('Unable to allocate a WebAssembly output buffer.');
     }
 
     try {
-      const generatedCount = this.exports.generate_batch(count, pointer, byteLength);
+      const generatedCount = this.exports.generateBatch(count, pointer, byteLength);
 
       if (generatedCount !== count) {
         throw new Error(`Wasm generated ${generatedCount} updates; expected ${count}.`);
@@ -116,7 +121,7 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
 
       return decodeMarketUpdates(values, count);
     } finally {
-      this.exports.dealloc_buffer(pointer, byteLength);
+      this.exports.deallocBuffer(pointer, byteLength);
     }
   }
 }
