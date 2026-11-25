@@ -11,12 +11,15 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "wasm:build": "node ./wasm/build.mjs",
+    "wasm:test": "node ./wasm/test.mjs",
+    "wasm:lint": "cargo fmt --manifest-path wasm/market-data-generator/Cargo.toml --check && cargo clippy --manifest-path wasm/market-data-generator/Cargo.toml --all-targets --locked -- -D warnings",
     "prestart": "npm run wasm:build",
     "prebuild": "npm run wasm:build",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run lint && tsc -p tsconfig.spec.json --noEmit && npm run wasm:lint && npm run wasm:test && npm run build && npm test"
   },
   "dependencies": {
     "@angular/animations": "~20.3.0",

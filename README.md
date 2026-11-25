@@ -17,7 +17,8 @@ Angular 20 standalone application for a realtime market-data simulation.
 
 - Node.js 20.19+ or 22.12+
 - npm 10+
-- Rust toolchain and `wasm32-unknown-unknown` target (for the Wasm phase)
+- Rust toolchain (via rustup). The `wasm32-unknown-unknown` (build) and `wasm32-wasip1` (tests) targets are
+  installed automatically by the Wasm scripts.
 
 ## Getting started
 
@@ -30,17 +31,36 @@ The `prestart` and `prebuild` hooks compile the Rust generator to WebAssembly be
 
 Open `http://localhost:4200`.
 
+## Check everything
+
+```bash
+npm run check
+```
+
+Runs every check below in order and stops at the first failure (exit code ≠ 0), so it can be used before a commit
+and in CI:
+
+| Step | Script                      | Checks                                                                                                 |
+| ---- | --------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 1    | `format:check`              | Prettier formatting (fix with `npm run format`)                                                        |
+| 2    | `lint`                      | ESLint, zero warnings allowed (fix what is safe with `npm run lint:fix`)                               |
+| 3    | `tsc -p tsconfig.spec.json` | Type-checks the specs; Jest only transpiles them (`isolatedModules`)                                   |
+| 4    | `wasm:lint`                 | `cargo fmt --check` and `cargo clippy -D warnings` for the Rust generator                              |
+| 5    | `wasm:test`                 | Rust unit tests (see below)                                                                            |
+| 6    | `build`                     | Production build with type checking; `prebuild` also rebuilds `public/wasm/market_data_generator.wasm` |
+| 7    | `test`                      | Jest unit tests, run last so they load the Wasm module built in step 6                                 |
+
 ## Tests
 
 ```bash
-npm test
+npm test                     # Jest
 npm run test:coverage
+npm run wasm:test            # Rust generator tests
+npm run wasm:test -- price   # only Rust tests whose name contains "price"
 ```
 
-```bash
-npm run lint                                          # ESLint, zero warnings allowed
-cargo test --manifest-path wasm/market-data-generator/Cargo.toml   # Rust generator tests
-```
+`wasm:test` compiles the Rust tests to `wasm32-wasip1` and runs them with Node's built-in WASI, on the same 32-bit Wasm
+architecture as the shipped module. See `wasm/README.md` for details.
 
 The Jest suite also runs the compiled `public/wasm/market_data_generator.wasm`
 (`wasm-market-data-generator.spec.ts`), so generator batch sizes and value invariants are checked from TypeScript as well.

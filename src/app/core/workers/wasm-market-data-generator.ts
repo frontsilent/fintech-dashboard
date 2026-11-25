@@ -34,7 +34,7 @@ const nullPointer = 0;
 
 /**
  * Position of each value inside one generator record. A record is a sequence of little-endian u32 values
- * and must match the ABI layout documented in `wasm/market-data-generator/src/lib.rs`.
+ * and must match the ABI layout defined by `MarketRecord::wire_fields` in `wasm/market-data-generator/src/market_record.rs`.
  */
 const recordFieldOffset = {
   instrumentIndex: 0,
