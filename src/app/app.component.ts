@@ -6,7 +6,7 @@ import { StatusDotComponent } from './shared/ui/status-dot/status-dot.component'
 type NavigationItem = {
   readonly path: string;
   readonly label: string;
-}
+};
 
 @Component({
   selector: 'app-root',

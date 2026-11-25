@@ -2,7 +2,7 @@
 export type NumberRange = {
   readonly min: number;
   readonly max: number;
-}
+};
 
 export function isIntegerInRange(value: number, { min, max }: NumberRange): boolean {
   return Number.isInteger(value) && value >= min && value <= max;

@@ -30,7 +30,11 @@ const initMessage = (runId: number): WorkerCommandMap['init'] => ({
   wasmUrl: 'generator.wasm'
 });
 
-function setup(): { runtime: MarketDataWorkerRuntime; posted: WorkerEvent[]; generator: jest.Mocked<MarketDataGenerator> } {
+function setup(): {
+  runtime: MarketDataWorkerRuntime;
+  posted: WorkerEvent[];
+  generator: jest.Mocked<MarketDataGenerator>;
+} {
   const posted: WorkerEvent[] = [];
   const generator: jest.Mocked<MarketDataGenerator> = {
     initializeRun: jest.fn(),
@@ -44,9 +48,8 @@ function setup(): { runtime: MarketDataWorkerRuntime; posted: WorkerEvent[]; gen
   return { runtime, posted, generator };
 }
 
-const typesOf = (messages: readonly WorkerEvent[], runId?: number): string[] => messages
-  .filter((message) => runId === undefined || message.runId === runId)
-  .map(({ type }) => type);
+const typesOf = (messages: readonly WorkerEvent[], runId?: number): string[] =>
+  messages.filter((message) => runId === undefined || message.runId === runId).map(({ type }) => type);
 
 describe('MarketDataWorkerRuntime', () => {
   beforeEach(() => jest.useFakeTimers());
@@ -120,7 +123,9 @@ describe('MarketDataWorkerRuntime', () => {
 
     runtime.handleMainThreadMessage({ ...initMessage(run.first), settings: { ...settings, instrumentCount: 0 } });
 
-    expect(posted).toEqual([{ type: 'error', runId: run.first, message: 'Worker received invalid producer settings.' }]);
+    expect(posted).toEqual([
+      { type: 'error', runId: run.first, message: 'Worker received invalid producer settings.' }
+    ]);
     expect(generator.initializeRun).not.toHaveBeenCalled();
   });
 

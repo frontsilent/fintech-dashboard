@@ -60,7 +60,13 @@ describe('market metrics', () => {
   it('keeps metrics isolated by instrument', () => {
     const state = applyMarketUpdates(createMarketMetricsState(), [
       update({ instrument: 'BTC-USD', tradeQuantity: isolatedTrades.btc }),
-      update({ instrument: 'ETH-USD', priceCents: 20_000, bidCents: 19_996, askCents: 20_000, tradeQuantity: isolatedTrades.eth })
+      update({
+        instrument: 'ETH-USD',
+        priceCents: 20_000,
+        bidCents: 19_996,
+        askCents: 20_000,
+        tradeQuantity: isolatedTrades.eth
+      })
     ]);
     const metrics = selectInstrumentMetrics(state);
 

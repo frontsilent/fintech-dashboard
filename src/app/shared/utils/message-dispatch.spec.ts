@@ -1,6 +1,7 @@
 import { dispatchMessage, type MessageByType, type MessageHandlers } from './message-dispatch';
 
-type TestMessage = { readonly type: 'count'; readonly value: number } | { readonly type: 'name'; readonly name: string };
+type TestMessage =
+  { readonly type: 'count'; readonly value: number } | { readonly type: 'name'; readonly name: string };
 
 const countValue = 3;
 

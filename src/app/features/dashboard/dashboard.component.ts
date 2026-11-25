@@ -14,7 +14,7 @@ type OverviewItem = {
   readonly value: string | number;
   readonly unit?: string;
   readonly hint: string;
-}
+};
 
 @Component({
   selector: 'app-dashboard',

@@ -27,5 +27,4 @@ npm run lint:fix
 - Angular TypeScript and HTML templates are linted, including inline component templates.
 - Component and directive selectors use the standard `app` prefix. Explicit view encapsulation is configured for the current components.
 
-
 **RxJS plugin compatibility:** the original `eslint-plugin-rxjs@5.0.3` only declares ESLint 8 as a peer dependency. This setup uses `eslint-plugin-rxjs-updated` to retain the RxJS rule set with ESLint 9.

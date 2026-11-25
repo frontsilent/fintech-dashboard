@@ -13,7 +13,7 @@ export type SettingsFieldConfig = {
   readonly label: string;
   readonly description: string;
   readonly unit: string;
-}
+};
 
 /** Display metadata of each form field, in the order the fields are rendered. */
 export const SETTINGS_FIELDS: readonly SettingsFieldConfig[] = [

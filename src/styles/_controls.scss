@@ -16,7 +16,10 @@
   cursor: pointer;
   font-size: var(--app-font-size-sm);
   font-weight: var(--app-font-weight-bold);
-  transition: background .15s ease, border-color .15s ease, opacity .15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
 
   &:hover:not(:disabled) {
     border-color: var(--app-color-border-strong);
@@ -24,7 +27,7 @@
 
   &:disabled {
     cursor: not-allowed;
-    opacity: .55;
+    opacity: 0.55;
   }
 
   &._primary {

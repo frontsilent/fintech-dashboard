@@ -3,6 +3,8 @@
  * in order, followed by extra symbols so every supported instrument count has unique names.
  * Must contain at least `PRODUCER_SETTINGS_LIMITS.instrumentCount.max` unique entries.
  */
+// Packed lookup table reads better than one symbol per line.
+// prettier-ignore
 export const INSTRUMENT_SYMBOLS = [
   'ALFA', 'BETA', 'GAMMA', 'DELTA', 'EPSILON', 'ZETA', 'ETA', 'THETA', 'IOTA', 'KAPPA',
   'LAMBDA', 'MU', 'NU', 'XI', 'OMICRON', 'PI', 'RHO', 'SIGMA', 'TAU', 'UPSILON',

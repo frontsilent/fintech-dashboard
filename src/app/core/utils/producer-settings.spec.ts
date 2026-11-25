@@ -1,4 +1,8 @@
-import { assertValidProducerSettings, calculateNominalUpdatesPerSecond, isValidProducerSettings } from './producer-settings';
+import {
+  assertValidProducerSettings,
+  calculateNominalUpdatesPerSecond,
+  isValidProducerSettings
+} from './producer-settings';
 import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
 
 const defaultRate = 200;
@@ -25,11 +29,12 @@ describe('producer settings validation', () => {
   });
 
   it('names every invalid field and its range in the thrown error', () => {
-    expect(() => assertValidProducerSettings({ instrumentCount: 51, updatesPerBatch: 0, batchIntervalMs: 500 }))
-      .toThrow(
-        'Invalid producer settings: instrumentCount must be an integer between 1 and 50; '
-        + 'updatesPerBatch must be an integer between 1 and 1000.'
-      );
+    expect(() =>
+      assertValidProducerSettings({ instrumentCount: 51, updatesPerBatch: 0, batchIntervalMs: 500 })
+    ).toThrow(
+      'Invalid producer settings: instrumentCount must be an integer between 1 and 50; ' +
+        'updatesPerBatch must be an integer between 1 and 1000.'
+    );
   });
 });
 

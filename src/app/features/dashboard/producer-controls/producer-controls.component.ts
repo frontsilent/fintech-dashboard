@@ -13,7 +13,7 @@ type ProducerControl = {
   readonly appearance: ButtonAppearance;
   /** `null` renders a disabled button. */
   readonly action: ProducerAction | null;
-}
+};
 
 const statusAppearance = {
   idle: 'neutral',
@@ -42,7 +42,13 @@ const controlByStatus = {
       {{ statusLabel() }}
     </span>
     @if (control(); as control) {
-      <button appButton type="button" [appearance]="control.appearance" [disabled]="!control.action" (click)="run(control.action)">
+      <button
+        appButton
+        type="button"
+        [appearance]="control.appearance"
+        [disabled]="!control.action"
+        (click)="run(control.action)"
+      >
         {{ control.label }}
       </button>
     }

@@ -1,5 +1,6 @@
 import eslint from '@eslint/js';
 import angular from 'angular-eslint';
+import prettierConfig from 'eslint-config-prettier';
 import importPlugin from 'eslint-plugin-import';
 import jsdoc from 'eslint-plugin-jsdoc';
 import rxjs from 'eslint-plugin-rxjs-updated';
@@ -7,21 +8,12 @@ import unicorn from 'eslint-plugin-unicorn';
 import tseslint from 'typescript-eslint';
 
 const angularRules = {
-  '@angular-eslint/component-class-suffix': [
-    'error',
-    { suffixes: ['Component', 'Page'] },
-  ],
+  '@angular-eslint/component-class-suffix': ['error', { suffixes: ['Component', 'Page'] }],
   '@angular-eslint/component-max-inline-declarations': 'off',
-  '@angular-eslint/component-selector': [
-    'error',
-    { type: 'element', prefix: 'app', style: 'kebab-case' },
-  ],
+  '@angular-eslint/component-selector': ['error', { type: 'element', prefix: 'app', style: 'kebab-case' }],
   '@angular-eslint/contextual-lifecycle': 'error',
   '@angular-eslint/directive-class-suffix': 'error',
-  '@angular-eslint/directive-selector': [
-    'error',
-    { type: 'attribute', prefix: 'app', style: 'camelCase' },
-  ],
+  '@angular-eslint/directive-selector': ['error', { type: 'attribute', prefix: 'app', style: 'camelCase' }],
   '@angular-eslint/no-attribute-decorator': 'error',
   '@angular-eslint/no-conflicting-lifecycle': 'error',
   '@angular-eslint/no-input-rename': 'off',
@@ -37,7 +29,7 @@ const angularRules = {
   '@angular-eslint/use-component-selector': 'error',
   '@angular-eslint/use-component-view-encapsulation': 'error',
   '@angular-eslint/use-lifecycle-interface': 'error',
-  '@angular-eslint/use-pipe-transform-interface': 'error',
+  '@angular-eslint/use-pipe-transform-interface': 'error'
 };
 
 const typescriptRules = {
@@ -51,26 +43,17 @@ const typescriptRules = {
       'ts-ignore': 'allow-with-description',
       'ts-nocheck': 'allow-with-description',
       'ts-check': true,
-      minimumDescriptionLength: 5,
-    },
+      minimumDescriptionLength: 5
+    }
   ],
-  '@typescript-eslint/consistent-type-assertions': [
-    'error',
-    { assertionStyle: 'as' },
-  ],
+  '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'as' }],
   '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
-  '@typescript-eslint/dot-notation': [
-    'error',
-    { allowIndexSignaturePropertyAccess: true },
-  ],
+  '@typescript-eslint/dot-notation': ['error', { allowIndexSignaturePropertyAccess: true }],
   '@typescript-eslint/explicit-function-return-type': [
     'error',
-    { allowExpressions: true, allowTypedFunctionExpressions: true },
+    { allowExpressions: true, allowTypedFunctionExpressions: true }
   ],
-  '@typescript-eslint/explicit-member-accessibility': [
-    'error',
-    { accessibility: 'no-public' },
-  ],
+  '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'no-public' }],
   '@typescript-eslint/member-ordering': [
     'error',
     {
@@ -79,24 +62,35 @@ const typescriptRules = {
         'public-instance-field',
         'constructor',
         'public-instance-method',
-        'private-instance-method',
-      ],
-    },
+        'private-instance-method'
+      ]
+    }
   ],
   '@typescript-eslint/naming-convention': [
     'error',
     { selector: 'default', format: ['camelCase'], leadingUnderscore: 'forbid', trailingUnderscore: 'forbid' },
     { selector: 'variable', modifiers: ['const', 'global'], format: ['camelCase'], leadingUnderscore: 'allow' },
     { selector: 'variable', modifiers: ['exported'], format: ['UPPER_CASE'], leadingUnderscore: 'forbid' },
-    { selector: 'variable', modifiers: ['exported', 'destructured'], format: ['camelCase', 'UPPER_CASE'], leadingUnderscore: 'forbid' },
-    { selector: 'variable', modifiers: ['exported'], types: ['function'], format: ['camelCase'], leadingUnderscore: 'forbid' },
+    {
+      selector: 'variable',
+      modifiers: ['exported', 'destructured'],
+      format: ['camelCase', 'UPPER_CASE'],
+      leadingUnderscore: 'forbid'
+    },
+    {
+      selector: 'variable',
+      modifiers: ['exported'],
+      types: ['function'],
+      format: ['camelCase'],
+      leadingUnderscore: 'forbid'
+    },
     { selector: 'typeLike', format: ['PascalCase'] },
     { selector: 'memberLike', modifiers: ['private'], format: ['camelCase'], leadingUnderscore: 'allow' },
     { selector: 'parameter', modifiers: ['unused'], format: ['camelCase'], leadingUnderscore: 'allow' },
     { selector: 'interface', format: ['PascalCase'], custom: { regex: '^I[A-Z]', match: false } },
     { selector: 'enumMember', format: ['camelCase', 'PascalCase', 'UPPER_CASE'] },
     { selector: 'memberLike', modifiers: ['requiresQuotes'], format: null },
-    { selector: ['variable', 'parameter'], modifiers: ['destructured'], format: null },
+    { selector: ['variable', 'parameter'], modifiers: ['destructured'], format: null }
   ],
   '@typescript-eslint/no-dynamic-delete': 'error',
   '@typescript-eslint/no-floating-promises': 'off',
@@ -112,7 +106,7 @@ const typescriptRules = {
   '@typescript-eslint/no-this-alias': 'error',
   '@typescript-eslint/no-unnecessary-boolean-literal-compare': [
     'error',
-    { allowComparingNullableBooleansToTrue: false, allowComparingNullableBooleansToFalse: true },
+    { allowComparingNullableBooleansToTrue: false, allowComparingNullableBooleansToFalse: true }
   ],
   '@typescript-eslint/no-unnecessary-type-arguments': 'off',
   '@typescript-eslint/no-unnecessary-type-assertion': 'error',
@@ -126,7 +120,7 @@ const typescriptRules = {
   '@typescript-eslint/restrict-plus-operands': 'error',
   '@typescript-eslint/return-await': 'error',
   '@typescript-eslint/typedef': 'off',
-  '@typescript-eslint/unified-signatures': 'error',
+  '@typescript-eslint/unified-signatures': 'error'
 };
 
 const generalRules = {
@@ -157,10 +151,10 @@ const generalRules = {
     {
       paths: [
         { name: 'rxjs/operators', message: "Import operators directly from 'rxjs'." },
-        { name: 'lodash', message: "Import from 'lodash-es' instead." },
+        { name: 'lodash', message: "Import from 'lodash-es' instead." }
       ],
-      patterns: [{ group: ['.*/index'], message: "Import from the module path, not its '/index' entry." }],
-    },
+      patterns: [{ group: ['.*/index'], message: "Import from the module path, not its '/index' entry." }]
+    }
   ],
   'no-return-await': 'off',
   'no-trailing-spaces': 'off',
@@ -177,7 +171,7 @@ const generalRules = {
     'error',
     { blankLine: 'always', prev: '*', next: ['return', 'break', 'default', 'throw'] },
     { blankLine: 'always', prev: ['let', 'const', 'block-like', 'case', 'function'], next: '*' },
-    { blankLine: 'any', prev: ['let', 'const'], next: ['let', 'const'] },
+    { blankLine: 'any', prev: ['let', 'const'], next: ['let', 'const'] }
   ],
   'prefer-const': 'error',
   'prefer-object-spread': 'error',
@@ -187,27 +181,45 @@ const generalRules = {
   'sort-imports': ['error', { ignoreCase: true, ignoreDeclarationSort: true, ignoreMemberSort: false }],
   'import/newline-after-import': ['error', { count: 1 }],
   'import/no-deprecated': 'warn',
-  'import/no-unassigned-import': ['error', { allow: ['zone.js', 'zone.js/plugins/zone-error', './*', 'jest-preset-angular/setup-jest'] }],
+  'import/no-unassigned-import': [
+    'error',
+    { allow: ['zone.js', 'zone.js/plugins/zone-error', './*', 'jest-preset-angular/setup-jest'] }
+  ],
   'import/order': [
     'error',
     {
       groups: ['builtin', 'external', 'internal', ['parent', 'sibling', 'index']],
       'newlines-between': 'always',
-      alphabetize: { order: 'asc', caseInsensitive: true },
-    },
+      alphabetize: { order: 'asc', caseInsensitive: true }
+    }
   ],
   'jsdoc/no-types': 'error',
   'unicorn/filename-case': ['error', { case: 'kebabCase' }],
   'unicorn/prefer-ternary': 'error',
   'unicorn/switch-case-braces': 'error',
-  'id-denylist': ['error', 'any', 'Number', 'number', 'String', 'string', 'Boolean', 'boolean', 'Undefined', 'undefined'],
+  'id-denylist': [
+    'error',
+    'any',
+    'Number',
+    'number',
+    'String',
+    'string',
+    'Boolean',
+    'boolean',
+    'Undefined',
+    'undefined'
+  ],
   'rxjs/finnish': [
     'error',
     {
-      functions: false, methods: false, parameters: true, properties: true, variables: true,
+      functions: false,
+      methods: false,
+      parameters: true,
+      properties: true,
+      variables: true,
       names: { '^useValue$': false, '^useFactory$': false, '^entities$': false, '^UIEntities$': false },
-      types: { '^EventEmitter$': false, '^(Subject|BehaviorSubject|ReplaySubject|AsyncSubject)$': false },
-    },
+      types: { '^EventEmitter$': false, '^(Subject|BehaviorSubject|ReplaySubject|AsyncSubject)$': false }
+    }
   ],
   'rxjs/no-async-subscribe': 'error',
   'rxjs/no-compat': 'error',
@@ -226,7 +238,7 @@ const generalRules = {
   'rxjs/no-unsafe-takeuntil': ['error', { alias: ['takeUntilDestroyed'] }],
   'rxjs/prefer-observer': ['error', { allowNext: true }],
   'rxjs/throw-error': 'error',
-  'rxjs/suffix-subjects': ['error', { parameters: true, properties: true, variables: true, suffix: 'Subject' }],
+  'rxjs/suffix-subjects': ['error', { parameters: true, properties: true, variables: true, suffix: 'Subject' }]
 };
 
 export default tseslint.config(
@@ -238,8 +250,8 @@ export default tseslint.config(
       '**/.angular/**',
       '**/wasm/**',
       'jest.config.*',
-      'setup-jest.ts',
-    ],
+      'setup-jest.ts'
+    ]
   },
   {
     files: ['**/*.ts'],
@@ -247,19 +259,21 @@ export default tseslint.config(
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
       ...angular.configs.tsRecommended,
+      // Last in `extends`: turns off rules that conflict with Prettier; `rules` below still win.
+      prettierConfig
     ],
     processor: angular.processInlineTemplates,
     languageOptions: {
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
+        tsconfigRootDir: import.meta.dirname
+      }
     },
     plugins: {
       import: importPlugin,
       jsdoc,
       rxjs,
-      unicorn,
+      unicorn
     },
     rules: {
       ...angularRules,
@@ -272,11 +286,11 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/typedef': 'off',
       'no-console': ['error', { allow: ['warn', 'error'] }],
-  'no-constant-condition': 'error',
-    },
+      'no-constant-condition': 'error'
+    }
   },
   {
     files: ['**/*.html'],
-    extends: [...angular.configs.templateRecommended],
-  },
+    extends: [...angular.configs.templateRecommended, prettierConfig]
+  }
 );

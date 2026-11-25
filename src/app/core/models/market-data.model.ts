@@ -10,7 +10,7 @@ export type MarketUpdate = {
   readonly askCents: number;
   readonly bidQuantity: number;
   readonly askQuantity: number;
-}
+};
 
 /** Every `MarketUpdate` field that holds an integer. */
 export type MarketUpdateNumericField = Exclude<keyof MarketUpdate, 'instrument'>;
@@ -23,7 +23,7 @@ export type InstrumentMetrics = {
   readonly tradingVolume: bigint;
   readonly vwapCents: number | null;
   readonly orderBookImbalance: number | null;
-}
+};
 
 /** Internal cumulative state; BigInt keeps VWAP arithmetic exact during long runs. */
 export type InstrumentAccumulator = {
@@ -35,6 +35,6 @@ export type InstrumentAccumulator = {
   readonly askQuantity: number;
   readonly cumulativeVolume: bigint;
   readonly cumulativeNotionalCents: bigint;
-}
+};
 
 export type MarketMetricsState = ReadonlyMap<string, InstrumentAccumulator>;

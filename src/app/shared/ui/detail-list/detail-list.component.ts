@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export type DetailItem = {
   readonly label: string;
   readonly value: string | number;
-}
+};
 
 /** Label/value rows, e.g. a read-only summary of the active configuration. */
 @Component({

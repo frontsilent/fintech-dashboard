@@ -2,11 +2,7 @@ import { getErrorMessage } from '../../shared/utils/get-error-message';
 import { dispatchMessage, type MessageHandlers } from '../../shared/utils/message-dispatch';
 import type { MarketUpdate } from '../models/market-data.model';
 import type { ProducerSettings } from '../models/producer.model';
-import type {
-  WorkerCommand,
-  WorkerCommandMap,
-  WorkerEvent
-} from '../models/worker-message.model';
+import type { WorkerCommand, WorkerCommandMap, WorkerEvent } from '../models/worker-message.model';
 import { isValidProducerSettings } from '../utils/producer-settings';
 
 /** Stateful market-data generator used by the runtime; implemented by `WasmMarketDataGenerator`. */
@@ -15,14 +11,14 @@ export type MarketDataGenerator = {
   readonly initializeRun: (seed: bigint, instrumentCount: number) => void;
   /** Returns exactly `count` updates. Throws when generation fails. */
   readonly generateUpdateBatch: (count: number) => readonly MarketUpdate[];
-}
+};
 
 export type MarketDataGeneratorLoader = (wasmUrl: string) => Promise<MarketDataGenerator>;
 
 export type MarketDataWorkerRuntimeDependencies = {
   readonly postToMainThread: (message: WorkerEvent) => void;
   readonly loadGenerator: MarketDataGeneratorLoader;
-}
+};
 
 /** Mutable state of the run currently owned by the Worker. A new object is created for every `init` command. */
 type RunSession = {
@@ -33,7 +29,7 @@ type RunSession = {
   isPaused: boolean;
   /** Cancels the pending batch timeout; `null` when no batch is scheduled. */
   cancelScheduledBatch: (() => void) | null;
-}
+};
 
 /**
  * Worker-side producer: owns the active run, schedules batches and reports lifecycle events.

@@ -8,7 +8,7 @@ export const MARKET_DATA_WORKER_FACTORY = new InjectionToken<() => Worker>('Mark
 export type MarketDataWorkerListeners = {
   readonly message: (message: WorkerEvent) => void;
   readonly error: (message: string) => void;
-}
+};
 
 /** Owns the single market-data Worker instance and its typed message channel. */
 @Injectable({ providedIn: 'root' })

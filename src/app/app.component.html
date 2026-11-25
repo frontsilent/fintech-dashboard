@@ -1,14 +1,14 @@
 <header class="topbar">
-    <a class="brand" routerLink="/dashboard" aria-label="Market Pulse home">
-        <span class="brand-mark" aria-hidden="true">M</span>
-        <span>Market<span class="brand-accent">Pulse</span></span>
-    </a>
-    <nav class="main-nav" aria-label="Main navigation">
-        @for (item of navigation; track item.path) {
-            <a [routerLink]="item.path" routerLinkActive="_active">{{ item.label }}</a>
-        }
-    </nav>
-    <div class="topbar-meta"><app-status-dot appearance="success" /><span>SIMULATION</span></div>
+  <a class="brand" routerLink="/dashboard" aria-label="Market Pulse home">
+    <span class="brand-mark" aria-hidden="true">M</span>
+    <span>Market<span class="brand-accent">Pulse</span></span>
+  </a>
+  <nav class="main-nav" aria-label="Main navigation">
+    @for (item of navigation; track item.path) {
+      <a [routerLink]="item.path" routerLinkActive="_active">{{ item.label }}</a>
+    }
+  </nav>
+  <div class="topbar-meta"><app-status-dot appearance="success" /><span>SIMULATION</span></div>
 </header>
 <main class="page-container"><router-outlet /></main>
 <footer class="app-footer"><span>MarketPulse</span><span>Realtime market simulation</span></footer>

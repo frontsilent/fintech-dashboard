@@ -1,6 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MARKET_DATA_SEED_FACTORY, MARKET_DATA_WASM_URL, MarketDataProducerService } from './market-data-producer.service';
+import {
+  MARKET_DATA_SEED_FACTORY,
+  MARKET_DATA_WASM_URL,
+  MarketDataProducerService
+} from './market-data-producer.service';
 import { MARKET_DATA_WORKER_FACTORY } from './market-data-worker.service';
 import { DEFAULT_PRODUCER_SETTINGS } from '../constants/producer.constants';
 import type { MarketUpdate } from '../models/market-data.model';
@@ -34,7 +38,7 @@ const noVolume = 0n;
 const nextRunId = 2;
 const fixedSeed = 42n;
 const wasmUrl = 'http://localhost/wasm/market_data_generator.wasm';
-const changedSettings ={ ...DEFAULT_PRODUCER_SETTINGS, instrumentCount: 2 };
+const changedSettings = { ...DEFAULT_PRODUCER_SETTINGS, instrumentCount: 2 };
 
 function setup(): { producer: MarketDataProducerService; worker: FakeWorker } {
   const worker = new FakeWorker();
@@ -62,7 +66,9 @@ describe('MarketDataProducerService', () => {
     expect(producer.status()).toBe('initializing');
     expect(producer.settings()).toEqual(DEFAULT_PRODUCER_SETTINGS);
     expect(producer.metrics()).toHaveLength(DEFAULT_PRODUCER_SETTINGS.instrumentCount);
-    expect(producer.metrics().every((metric) => metric.tradingVolume === noVolume && metric.lastPriceCents === null)).toBe(true);
+    expect(
+      producer.metrics().every((metric) => metric.tradingVolume === noVolume && metric.lastPriceCents === null)
+    ).toBe(true);
     expect(worker.lastCommand()).toEqual({
       type: 'init',
       runId: 1,

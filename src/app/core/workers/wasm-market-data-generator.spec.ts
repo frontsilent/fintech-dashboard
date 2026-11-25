@@ -20,8 +20,24 @@ const createGenerator = async (): Promise<WasmMarketDataGenerator> =>
 
 /** Records in ABI field order (property insertion order matches the layout). */
 const records = [
-  { instrumentIndex: 0, priceCents: 10_200, tradeQuantity: 30, bidCents: 10_196, askCents: 10_200, bidQuantity: 600, askQuantity: 400 },
-  { instrumentIndex: 2, priceCents: 9_996, tradeQuantity: 5, bidCents: 9_996, askCents: 10_000, bidQuantity: 12, askQuantity: 0 }
+  {
+    instrumentIndex: 0,
+    priceCents: 10_200,
+    tradeQuantity: 30,
+    bidCents: 10_196,
+    askCents: 10_200,
+    bidQuantity: 600,
+    askQuantity: 400
+  },
+  {
+    instrumentIndex: 2,
+    priceCents: 9_996,
+    tradeQuantity: 5,
+    bidCents: 9_996,
+    askCents: 10_000,
+    bidQuantity: 12,
+    askQuantity: 0
+  }
 ];
 
 const fieldCount = Object.keys(records[0]).length;

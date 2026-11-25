@@ -27,8 +27,7 @@ function pickGeneratorExports(exports: WebAssembly.Exports): GeneratorExportCand
 function hasExpectedExports(candidates: GeneratorExportCandidates): candidates is GeneratorExports {
   const { memory, ...functions } = candidates;
 
-  return memory instanceof WebAssembly.Memory
-    && Object.values(functions).every((value) => typeof value === 'function');
+  return memory instanceof WebAssembly.Memory && Object.values(functions).every((value) => typeof value === 'function');
 }
 
 const nullPointer = 0;

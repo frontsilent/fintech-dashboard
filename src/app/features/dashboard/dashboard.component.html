@@ -1,21 +1,22 @@
 <app-page-header
-    eyebrow="Market overview"
-    heading="Live market dashboard"
-    description="Track simulated market activity and instrument performance in real time.">
-    <app-producer-controls />
+  eyebrow="Market overview"
+  heading="Live market dashboard"
+  description="Track simulated market activity and instrument performance in real time."
+>
+  <app-producer-controls />
 </app-page-header>
 
 @if (producer.error(); as errorMessage) {
-    <app-alert class="error" appearance="error" heading="Producer error">{{ errorMessage }}</app-alert>
+  <app-alert class="error" appearance="error" heading="Producer error">{{ errorMessage }}</app-alert>
 }
 
 <section class="overview" aria-label="Producer overview">
-    @for (item of overviewItems(); track item.label) {
-        <app-stat-card [label]="item.label" [value]="item.value" [unit]="item.unit" [hint]="item.hint" />
-    }
+  @for (item of overviewItems(); track item.label) {
+    <app-stat-card [label]="item.label" [value]="item.value" [unit]="item.unit" [hint]="item.hint" />
+  }
 </section>
 
 <app-panel heading="Market instruments" description="Aggregated metrics for the current simulation run" [flush]="true">
-    <span class="run-id" panelAside>RUN #{{ producer.runId() }}</span>
-    <app-market-instruments-table [metrics]="producer.metrics()" />
+  <span class="run-id" panelAside>RUN #{{ producer.runId() }}</span>
+  <app-market-instruments-table [metrics]="producer.metrics()" />
 </app-panel>

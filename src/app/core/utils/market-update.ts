@@ -13,10 +13,7 @@ const positiveFields = [
 ] as const satisfies readonly MarketUpdateNumericField[];
 
 /** Order-book depth may be empty but never negative. */
-const nonNegativeFields = [
-  'bidQuantity',
-  'askQuantity'
-] as const satisfies readonly MarketUpdateNumericField[];
+const nonNegativeFields = ['bidQuantity', 'askQuantity'] as const satisfies readonly MarketUpdateNumericField[];
 
 /** True when every listed numeric field of the update satisfies the predicate. */
 function fieldsSatisfy(

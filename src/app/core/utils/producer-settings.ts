@@ -11,7 +11,9 @@ const msPerSecond = 1_000;
  * form validators (`shared/validators/integer-range.validators.ts`), which use the same limits.
  */
 function getInvalidFields(settings: ProducerSettings): readonly ProducerSettingsField[] {
-  return PRODUCER_SETTINGS_FIELDS.filter((field) => !isIntegerInRange(settings[field], PRODUCER_SETTINGS_LIMITS[field]));
+    return PRODUCER_SETTINGS_FIELDS.filter(
+        (field) => !isIntegerInRange(settings[field], PRODUCER_SETTINGS_LIMITS[field])
+    );
 }
 
 export function isValidProducerSettings(settings: ProducerSettings): boolean {
@@ -36,5 +38,5 @@ export function assertValidProducerSettings(settings: ProducerSettings): void {
 
 /** Requested updates per second across all instruments; `0` when the interval is not positive. */
 export function calculateNominalUpdatesPerSecond({ updatesPerBatch, batchIntervalMs }: RateSettings): number {
-  return batchIntervalMs > 0 ? updatesPerBatch * msPerSecond / batchIntervalMs : 0;
+  return batchIntervalMs > 0 ? (updatesPerBatch * msPerSecond) / batchIntervalMs : 0;
 }
