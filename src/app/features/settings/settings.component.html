@@ -42,17 +42,18 @@
         <span class="rate-note">Across all instruments</span>
       </div>
 
-      @if (applyError(); as applyError) {
-        <app-alert class="feedback" appearance="error">{{ applyError }}</app-alert>
-      }
-      @if (appliedRunId(); as runId) {
+      @if (producerError(); as errorMessage) {
+        <app-alert class="feedback" appearance="error">{{ errorMessage }}</app-alert>
+      } @else if (appliedRunId(); as runId) {
         <app-alert class="feedback" appearance="success"
           >Settings applied. New run #{{ runId }} has been started.</app-alert
         >
       }
 
       <div class="actions">
-        <button appButton appearance="primary" type="submit">Apply settings <span aria-hidden="true">→</span></button>
+        <button appButton appearance="primary" type="submit" [disabled]="!canApply()">
+          Apply settings <span aria-hidden="true">→</span>
+        </button>
       </div>
     </form>
   </app-panel>

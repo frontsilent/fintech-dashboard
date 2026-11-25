@@ -8,7 +8,7 @@ import { createProducerSettingsForm, SETTINGS_FIELDS } from './settings-form';
 import { PRODUCER_SETTINGS_LIMITS, PRODUCER_STATUS_LABELS } from '../../core/constants/producer.constants';
 import type { ProducerSettingsField } from '../../core/models/producer.model';
 import { MarketDataProducerService } from '../../core/services/market-data-producer.service';
-import { calculateNominalUpdatesPerSecond } from '../../core/utils/producer-settings';
+import { areProducerSettingsEqual, calculateNominalUpdatesPerSecond } from '../../core/utils/producer-settings';
 import { AlertComponent } from '../../shared/ui/alert/alert.component';
 import { ButtonDirective } from '../../shared/ui/button/button.directive';
 import { type DetailItem, DetailListComponent } from '../../shared/ui/detail-list/detail-list.component';
@@ -16,7 +16,6 @@ import { FormFieldComponent } from '../../shared/ui/form-field/form-field.compon
 import { InputDirective } from '../../shared/ui/input/input.directive';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header.component';
 import { PanelComponent } from '../../shared/ui/panel/panel.component';
-import { getErrorMessage } from '../../shared/utils/get-error-message';
 import { formatDecimal } from '../../shared/utils/number-format';
 import { getIntegerRangeErrorMessage } from '../../shared/validators/integer-range.validators';
 
@@ -46,13 +45,20 @@ export class SettingsComponent {
   readonly fields = SETTINGS_FIELDS;
   readonly limits = PRODUCER_SETTINGS_LIMITS;
   readonly appliedRunId = signal<number | null>(null);
-  readonly applyError = signal<string | null>(null);
+  /** Failures of the active run (Worker or Wasm), reported by the producer. */
+  readonly producerError = this.producer.error;
   /** Editing the form never touches the running producer; only `applySettings()` does. */
   readonly form = createProducerSettingsForm(this.producer.settings());
 
-  readonly nominalRatePreview = toSignal(
-    this.form.valueChanges.pipe(map(() => calculateNominalUpdatesPerSecond(this.form.getRawValue()))),
-    { initialValue: calculateNominalUpdatesPerSecond(this.form.getRawValue()) }
+  readonly formValue = toSignal(this.form.valueChanges.pipe(map(() => this.form.getRawValue())), {
+    initialValue: this.form.getRawValue()
+  });
+
+  readonly nominalRatePreview = computed(() => calculateNominalUpdatesPerSecond(this.formValue()));
+
+  /** Applying unchanged settings would only restart the same run; a failed run may still be retried. */
+  readonly canApply = computed(
+    () => this.producer.status() === 'error' || !areProducerSettingsEqual(this.formValue(), this.producer.settings())
   );
 
   readonly activeRunDetails = computed<readonly DetailItem[]>(() => {
@@ -80,6 +86,11 @@ export class SettingsComponent {
   }
 
   applySettings(): void {
+    // The button is disabled in this case, but Enter a field still submits the form.
+    if (!this.canApply()) {
+      return;
+    }
+
     this.clearFeedback();
     this.submitted.set(true);
 
@@ -89,18 +100,13 @@ export class SettingsComponent {
       return;
     }
 
-    try {
-      this.appliedRunId.set(this.producer.restart(this.form.getRawValue()));
-      this.form.markAsPristine();
-      this.submitted.set(false);
-    } catch (error: unknown) {
-      this.applyError.set(getErrorMessage(error, 'Unable to apply producer settings.'));
-    }
+    this.appliedRunId.set(this.producer.restart(this.form.getRawValue()));
+    this.form.markAsPristine();
+    this.submitted.set(false);
   }
 
   private clearFeedback(): void {
     this.submitted.set(false);
     this.appliedRunId.set(null);
-    this.applyError.set(null);
   }
 }

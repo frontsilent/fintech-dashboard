@@ -1,4 +1,5 @@
 import {
+  areProducerSettingsEqual,
   assertValidProducerSettings,
   calculateNominalUpdatesPerSecond,
   isValidProducerSettings
@@ -35,6 +36,24 @@ describe('producer settings validation', () => {
       'Invalid producer settings: instrumentCount must be an integer between 1 and 50; ' +
         'updatesPerBatch must be an integer between 1 and 1000.'
     );
+  });
+});
+
+describe('areProducerSettingsEqual', () => {
+  it('compares settings by value, not by reference', () => {
+    expect(areProducerSettingsEqual(DEFAULT_PRODUCER_SETTINGS, { ...DEFAULT_PRODUCER_SETTINGS })).toBe(true);
+  });
+
+  it('detects a change in any single field', () => {
+    expect(
+      areProducerSettingsEqual(DEFAULT_PRODUCER_SETTINGS, { ...DEFAULT_PRODUCER_SETTINGS, instrumentCount: 7 })
+    ).toBe(false);
+    expect(
+      areProducerSettingsEqual(DEFAULT_PRODUCER_SETTINGS, { ...DEFAULT_PRODUCER_SETTINGS, updatesPerBatch: 7 })
+    ).toBe(false);
+    expect(
+      areProducerSettingsEqual(DEFAULT_PRODUCER_SETTINGS, { ...DEFAULT_PRODUCER_SETTINGS, batchIntervalMs: 70 })
+    ).toBe(false);
   });
 });
 

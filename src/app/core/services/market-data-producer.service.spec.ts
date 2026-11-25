@@ -173,6 +173,27 @@ describe('MarketDataProducerService', () => {
     expect(producer.error()).toBe('Market data Worker failed.');
   });
 
+  it('reports a Worker that cannot be created through the error state instead of throwing', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: MARKET_DATA_WORKER_FACTORY,
+          useValue: () => {
+            throw new Error('Workers are not supported.');
+          }
+        },
+        { provide: MARKET_DATA_SEED_FACTORY, useValue: () => fixedSeed },
+        { provide: MARKET_DATA_WASM_URL, useValue: wasmUrl }
+      ]
+    });
+
+    const producer = TestBed.inject(MarketDataProducerService);
+
+    expect(() => producer.start()).not.toThrow();
+    expect(producer.status()).toBe('error');
+    expect(producer.error()).toBe('Workers are not supported.');
+  });
+
   it('rejects invalid settings without starting a run', () => {
     const { producer } = setup();
 
