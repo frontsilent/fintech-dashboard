@@ -9,8 +9,6 @@
     heading="Simulation configuration"
     description="Choose the number of instruments and the generation frequency."
   >
-    <span class="settings-icon" aria-hidden="true" panelAside>⚙</span>
-
     <form [formGroup]="form" (ngSubmit)="applySettings()" novalidate>
       @for (field of fields; track field.key) {
         <app-form-field

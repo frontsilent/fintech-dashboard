@@ -1,4 +1,4 @@
-import type { MarketDataGenerator } from './market-data-worker.runtime';
+import type { MarketDataGenerator, MarketDataGeneratorLoader } from './market-data-worker.runtime';
 import type { MarketUpdate } from '../models/market-data.model';
 import { createInstrumentSymbol } from '../utils/instrument-symbol';
 
@@ -66,6 +66,46 @@ export function decodeMarketUpdates(values: Uint32Array, count: number): MarketU
   });
 }
 
+export type WasmModuleCompiler = (url: string) => Promise<WebAssembly.Module>;
+
+/** Downloads and compiles the generator module. */
+export async function fetchWasmModule(url: string): Promise<WebAssembly.Module> {
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Unable to load WebAssembly module (${response.status} ${response.statusText}).`);
+  }
+
+  return WebAssembly.compile(await response.arrayBuffer());
+}
+
+/**
+ * Generator loader for the Worker. The module is downloaded and compiled once per URL, so applying settings
+ * does not download it again; every run still gets a new instance, and the previous run's memory is released
+ * with its instance. A failed load is not cached, so the next run retries it.
+ */
+export function createCachedWasmGeneratorLoader(
+  compileModule: WasmModuleCompiler = fetchWasmModule
+): MarketDataGeneratorLoader {
+  const compiledModules = new Map<string, Promise<WebAssembly.Module>>();
+
+  return async (url) => {
+    const compiledModule = compiledModules.get(url) ?? compileModule(url);
+
+    compiledModules.set(url, compiledModule);
+
+    try {
+      return await WasmMarketDataGenerator.instantiate(await compiledModule);
+    } catch (error: unknown) {
+      if (compiledModules.get(url) === compiledModule) {
+        compiledModules.delete(url);
+      }
+
+      throw error;
+    }
+  };
+}
+
 /** Adapts the raw Wasm ABI (pointers and buffers) to the `MarketDataGenerator` contract. */
 export class WasmMarketDataGenerator implements MarketDataGenerator {
   private readonly exports: GeneratorExports;
@@ -74,8 +114,9 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
     this.exports = exports;
   }
 
-  static async instantiateFromBytes(bytes: BufferSource): Promise<WasmMarketDataGenerator> {
-    const { instance } = await WebAssembly.instantiate(bytes, {});
+  /** Creates a new instance, with its own memory and run state, of an already compiled module. */
+  static async instantiate(compiledModule: WebAssembly.Module): Promise<WasmMarketDataGenerator> {
+    const instance = await WebAssembly.instantiate(compiledModule, {});
     const exports = pickGeneratorExports(instance.exports);
 
     if (!hasExpectedExports(exports)) {
@@ -85,14 +126,8 @@ export class WasmMarketDataGenerator implements MarketDataGenerator {
     return new WasmMarketDataGenerator(exports);
   }
 
-  static async loadFromUrl(url: string): Promise<WasmMarketDataGenerator> {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`Unable to load WebAssembly module (${response.status} ${response.statusText}).`);
-    }
-
-    return WasmMarketDataGenerator.instantiateFromBytes(await response.arrayBuffer());
+  static async instantiateFromBytes(bytes: BufferSource): Promise<WasmMarketDataGenerator> {
+    return WasmMarketDataGenerator.instantiate(await WebAssembly.compile(bytes));
   }
 
   initializeRun(seed: bigint, instrumentCount: number): void {

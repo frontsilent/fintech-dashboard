@@ -114,4 +114,6 @@ Spacing has no variables: margins, paddings and gaps use explicit px values on a
 - Every run has an id; results and acknowledgements from a previous run are ignored on both sides of the Worker boundary.
 - The Worker is created through the `MARKET_DATA_WORKER_FACTORY` token (`provideMarketDataWorker()`), which unit
   tests replace with a fake.
+- The Worker downloads and compiles the Wasm module once; each run creates a new instance of the compiled module,
+  so applying settings does not download it again and the previous run's memory is released.
 - Exact accumulators use `BigInt`; prices are integer cents and are rounded only for display.

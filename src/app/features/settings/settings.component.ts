@@ -6,7 +6,7 @@ import { map } from 'rxjs';
 
 import { createProducerSettingsForm, SETTINGS_FIELDS } from './settings-form';
 import { PRODUCER_SETTINGS_LIMITS, PRODUCER_STATUS_LABELS } from '../../core/constants/producer.constants';
-import type { ProducerSettingsField } from '../../core/models/producer.model';
+import type { ProducerSettingsField, ProducerStatus } from '../../core/models/producer.model';
 import { MarketDataProducerService } from '../../core/services/market-data-producer.service';
 import { areProducerSettingsEqual, calculateNominalUpdatesPerSecond } from '../../core/utils/producer-settings';
 import { AlertComponent } from '../../shared/ui/alert/alert.component';
@@ -20,6 +20,9 @@ import { formatDecimal } from '../../shared/utils/number-format';
 import { getIntegerRangeErrorMessage } from '../../shared/validators/integer-range.validators';
 
 const rateFractionDigits = 2;
+
+/** Statuses in which Apply restarts the run even with unchanged settings. */
+const restartableStatuses: ReadonlySet<ProducerStatus> = new Set(['paused', 'error']);
 
 @Component({
   selector: 'app-settings',
@@ -56,9 +59,14 @@ export class SettingsComponent {
 
   readonly nominalRatePreview = computed(() => calculateNominalUpdatesPerSecond(this.formValue()));
 
-  /** Applying unchanged settings would only restart the same run; a failed run may still be retried. */
+  /**
+   * Unchanged settings would only restart a live run, so Apply then stays disabled. A paused or failed run
+   * may always be restarted, even with the same settings.
+   */
   readonly canApply = computed(
-    () => this.producer.status() === 'error' || !areProducerSettingsEqual(this.formValue(), this.producer.settings())
+    () =>
+      restartableStatuses.has(this.producer.status()) ||
+      !areProducerSettingsEqual(this.formValue(), this.producer.settings())
   );
 
   readonly activeRunDetails = computed<readonly DetailItem[]>(() => {
