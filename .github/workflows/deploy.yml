@@ -33,13 +33,29 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown, wasm32-wasip1
+          components: rustfmt, clippy
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: wasm/market-data-generator -> target
+
       - name: Install dependencies
         run: npm ci
 
+      # Formatting, linters, Rust and Jest tests; a failing check stops the deployment.
+      - name: Check
+        run: npm run check
+
+      # `npm run build` runs `prebuild`, so the deployed Wasm module is compiled from the Rust sources of this commit.
       - name: Build Angular application
         run: |
           BASE_HREF="/${GITHUB_REPOSITORY#*/}/"
-          npx ng build --configuration production --base-href "$BASE_HREF"
+          npm run build -- --configuration production --base-href "$BASE_HREF"
 
       - name: Prepare deployment
         run: |
